@@ -31,6 +31,7 @@
             --radius: 16px;
             --shadow: 0 2px 8px rgba(0,0,0,0.06);
             --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
+            --min-touch: 44px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -43,9 +44,40 @@
             overflow-x: hidden;
         }
 
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.3s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-text {
+            font-size: 0.9rem;
+            color: var(--text2);
+            font-weight: 500;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         /* Offline indicator */
         .offline-bar {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -57,23 +89,25 @@
             font-size: 0.75rem;
             font-weight: 600;
             z-index: 99999;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
         }
-        body.offline .offline-bar { display: block; }
-        body.offline .header { margin-top: 28px; }
+        body.offline .offline-bar { transform: translateY(0); }
+        body.offline .header { margin-top: 28px; transition: margin-top 0.3s ease; }
 
-        /* Header */
+        /* Header — compact for small screens */
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 20px 20px 18px;
+            padding: 14px 16px 12px;
             position: sticky;
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 12px rgba(15,76,117,0.3);
         }
         .header-row { display: flex; align-items: center; justify-content: space-between; }
-        .header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-        .header p { font-size: 0.78rem; opacity: 0.75; margin-top: 2px; }
+        .header h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { font-size: 0.72rem; opacity: 0.75; margin-top: 1px; }
         .header-badge {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.25);
@@ -181,23 +215,27 @@
         }
         .search-bar:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(50,130,184,0.12); }
 
-        /* Pills */
-        .pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+        /* Pills — 44px touch targets */
+        .pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
         .pills::-webkit-scrollbar { display: none; }
         .pill {
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 10px 16px;
+            border-radius: 22px;
+            font-size: 0.82rem;
             background: var(--card);
             border: 1.5px solid var(--border);
             white-space: nowrap;
             cursor: pointer;
             font-weight: 500;
-            min-height: 36px;
+            min-height: var(--min-touch);
             display: flex;
             align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
         }
+        .pill:active { background: #e8edf2; transform: scale(0.96); }
         .pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .pill.active:active { background: var(--primary-dark); }
 
         /* Item rows */
         .item-row {
@@ -230,18 +268,19 @@
         .item-serial { font-size: 0.76rem; font-weight: 700; color: var(--primary); font-family: 'SF Mono', 'Menlo', monospace; }
         .item-check { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
 
-        /* Status badge */
+        /* Status badge — high contrast with border */
         .status-badge {
-            font-size: 0.68rem;
-            font-weight: 600;
-            padding: 3px 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
             border-radius: 8px;
             white-space: nowrap;
+            letter-spacing: -0.2px;
         }
-        .badge-available { background: #d1fae5; color: #065f46; }
-        .badge-loaned { background: #fed7aa; color: #9a3412; }
-        .badge-damaged { background: #fecaca; color: #991b1b; }
-        .badge-repair { background: #fef3c7; color: #92400e; }
+        .badge-available { background: #d1fae5; color: #064e3b; border: 1px solid #a7f3d0; }
+        .badge-loaned { background: #ffedd5; color: #7c2d12; border: 1px solid #fed7aa; }
+        .badge-damaged { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+        .badge-repair { background: #fef3c7; color: #78350f; border: 1px solid #fde68a; }
 
         /* Product summary rows */
         .product-row {
@@ -713,7 +752,7 @@
             <h3>במקום טופס 1008</h3>
             <div class="form-meta">
                 <div class="form-field"><label>מאת</label><input id="f-from" value="קשר גדוד 7155"></div>
-                <div class="form-field"><label>ליחידת</label><input id="f-to" placeholder="פלוגה ג'"></div>
+                <div class="form-field"><label>ליחידת</label><input id="f-to" placeholder="פלוגה ג'" oninput="formDirty=true"></div>
             </div>
             <div class="form-field"><label>תאריך</label><input type="date" id="f-date"></div>
 
@@ -749,7 +788,7 @@
                 </div>
             </div>
 
-            <div class="form-field"><label>הערות</label><textarea id="f-notes" rows="2" placeholder="הערות נוספות..."></textarea></div>
+            <div class="form-field"><label>הערות</label><textarea id="f-notes" rows="2" placeholder="הערות נוספות..." oninput="formDirty=true"></textarea></div>
             <div class="btn-row">
                 <button class="btn btn-primary" onclick="saveForm()">שמור טופס</button>
             </div>
@@ -831,7 +870,9 @@ const SUPABASE_URL = 'https://pxvtfnmygyogdjriigfy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_1KAHLE7bVm_ku6c_beGW7g_HwEonwFz';
 let supabaseClient = null;
 try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    if (window.supabase && window.supabase.createClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
 } catch(e) { console.warn('Supabase init failed:', e); }
 
 // ===== DATA =====
@@ -913,15 +954,36 @@ function showToast(msg) {
 
 // ===== NAVIGATION =====
 let navHistory = ['home'];
+let formDirty = false;
+
+function isFormDirty() {
+    if (!document.getElementById('page-sign').classList.contains('active')) return false;
+    const to = document.getElementById('f-to').value.trim();
+    const hasItems = Array.from(document.querySelectorAll('#f-items .form-item-row')).some(row => {
+        const name = row.querySelector('.fi-name');
+        return name && name.value.trim();
+    });
+    const hasNotes = document.getElementById('f-notes').value.trim();
+    const hasSig = (sigPads.issuer && sigPads.issuer.data) || (sigPads.receiver && sigPads.receiver.data);
+    return !!(to || hasItems || hasNotes || hasSig || formDirty);
+}
+
 function navigate(page, pushState = true) {
+    // Confirm before leaving a partially filled form
+    if (document.getElementById('page-sign').classList.contains('active') && page !== 'sign') {
+        if (isFormDirty()) {
+            if (!confirm('יש נתונים בטופס שלא נשמרו. לצאת בכל זאת?')) return;
+        }
+        formDirty = false;
+    }
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     if (page === 'home') navHistory = ['home'];
     else navHistory.push(page);
 
     if (pushState) {
-        const url = page === 'home' ? '/' : '/' + page;
-        history.pushState({ page }, '', url);
+        location.hash = page === 'home' ? '' : page;
     }
 
     if (page === 'sign') initForm();
@@ -931,9 +993,10 @@ function navigate(page, pushState = true) {
     if (page === 'qr') initQrPage();
 }
 
-window.addEventListener('popstate', (e) => {
-    const page = (e.state && e.state.page) || 'home';
-    navigate(page, false);
+window.addEventListener('hashchange', () => {
+    const page = location.hash.replace('#', '') || 'home';
+    const validPages = ['home','status','sign','qr','items','receipts','settings'];
+    if (validPages.includes(page)) navigate(page, false);
 });
 
 function navigateBack() {
@@ -970,12 +1033,13 @@ function renderStatus() {
         const unitItems = EQUIPMENT.filter(e => info.companies.includes(e.company));
         const count = unitItems.length;
         const hasSubUnits = !!info.subUnits;
+        const safeUnitName = escapeAttr(unitName);
         html += `
-            <div class="unit-card" onclick="${hasSubUnits ? `showSubUnits('${unitName}')` : `showUnitDetail('${unitName}', null)`}">
+            <div class="unit-card" onclick="${hasSubUnits ? `showSubUnits('${safeUnitName}')` : `showUnitDetail('${safeUnitName}', null)`}">
                 <div class="unit-info">
-                    <div class="unit-icon" style="background:${info.color}20;color:${info.color};font-weight:800">${info.icon}</div>
+                    <div class="unit-icon" style="background:${info.color}20;color:${info.color};font-weight:800">${escapeHtml(info.icon)}</div>
                     <div>
-                        <div class="unit-name">${unitName}</div>
+                        <div class="unit-name">${escapeHtml(unitName)}</div>
                         <div class="unit-count">${count} פריטים${hasSubUnits ? ' · לחץ לפירוט' : ''}</div>
                     </div>
                 </div>
@@ -995,14 +1059,16 @@ function showSubUnits(parentUnit) {
     document.getElementById('sub-unit-title').textContent = `${parentUnit} — תת-יחידות`;
 
     let html = '';
+    const safeParentUnit = escapeAttr(parentUnit);
     for (const [subName, companies] of Object.entries(info.subUnits)) {
         const subItems = EQUIPMENT.filter(e => companies.includes(e.company));
+        const safeSubName = escapeAttr(subName);
         html += `
-            <div class="unit-card" onclick="showUnitDetail('${parentUnit}', '${subName}')">
+            <div class="unit-card" onclick="showUnitDetail('${safeParentUnit}', '${safeSubName}')">
                 <div class="unit-info">
-                    <div class="unit-icon" style="background:${info.color}20;color:${info.color};font-weight:800">${subName.charAt(0)}</div>
+                    <div class="unit-icon" style="background:${info.color}20;color:${info.color};font-weight:800">${escapeHtml(subName.charAt(0))}</div>
                     <div>
-                        <div class="unit-name">${subName}</div>
+                        <div class="unit-name">${escapeHtml(subName)}</div>
                         <div class="unit-count">${subItems.length} פריטים</div>
                     </div>
                 </div>
@@ -1045,11 +1111,11 @@ function showUnitDetail(unitName, subName) {
     document.getElementById('detail-unit-items').innerHTML = items.map(e => {
         const st = statuses[e.serial] || 'available';
         return `
-        <div class="item-row" onclick="showItemDetail('${e.serial}')">
+        <div class="item-row" onclick="showItemDetail('${escapeAttr(e.serial)}')">
             <div class="item-icon">${getItemIcon(e.product)}</div>
             <div class="item-info">
-                <div class="item-title">${e.role} — ${e.product}</div>
-                <div class="item-sub">${e.company} · ${e.crate || '—'}</div>
+                <div class="item-title">${escapeHtml(e.role)} — ${escapeHtml(e.product)}</div>
+                <div class="item-sub">${escapeHtml(e.company)} · ${escapeHtml(e.crate) || '—'}</div>
             </div>
             <span class="status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span>
         </div>`;
@@ -1067,10 +1133,19 @@ function renderPills(active) {
     const topUnits = Object.keys(UNIT_HIERARCHY);
     document.getElementById('unit-pills').innerHTML =
         `<div class="pill ${!active?'active':''}" onclick="currentFilter='';renderPills('');renderItems()">הכל</div>` +
-        topUnits.map(u => `<div class="pill ${active===u?'active':''}" onclick="currentFilter='${u}';renderPills('${u}');renderItems()">${u}</div>`).join('');
+        topUnits.map(u => {
+            const safeU = escapeAttr(u);
+            return `<div class="pill ${active===u?'active':''}" onclick="currentFilter='${safeU}';renderPills('${safeU}');renderItems()">${escapeHtml(u)}</div>`;
+        }).join('');
 }
 
 function renderItems() {
+    // Empty state when no equipment data at all
+    if (!EQUIPMENT.length) {
+        document.getElementById('items-list').innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>אין פריטים במערכת</p><p style="font-size:0.75rem;margin-top:8px;color:var(--text3)">בדוק חיבור לאינטרנט או פנה למנהל המערכת</p></div>';
+        return;
+    }
+
     const q = (document.getElementById('items-search').value || '').toLowerCase();
     let items = EQUIPMENT;
 
@@ -1079,11 +1154,11 @@ function renderItems() {
         if (info) items = items.filter(e => info.companies.includes(e.company));
     }
     if (q) items = items.filter(e =>
-        e.serial.toLowerCase().includes(q) ||
+        (e.serial || '').toLowerCase().includes(q) ||
         e.role.toLowerCase().includes(q) ||
         e.product.toLowerCase().includes(q) ||
         e.company.toLowerCase().includes(q) ||
-        e.location.toLowerCase().includes(q)
+        (e.location || '').toLowerCase().includes(q)
     );
 
     // Batch bar
@@ -1109,20 +1184,21 @@ function renderItems() {
     document.getElementById('items-list').innerHTML = items.slice(0, 150).map(e => {
         const st = statuses[e.serial] || 'available';
         const checked = batchSelected.includes(e.serial) ? 'checked' : '';
+        const safeSerial = escapeAttr(e.serial);
         return `
-        <div class="item-row" onclick="${batchMode ? `toggleBatchItem('${e.serial}')` : `showItemDetail('${e.serial}')`}">
-            ${batchMode ? `<input type="checkbox" class="item-check" ${checked} onclick="event.stopPropagation();toggleBatchItem('${e.serial}')">` : ''}
+        <div class="item-row" onclick="${batchMode ? `toggleBatchItem('${safeSerial}')` : `showItemDetail('${safeSerial}')`}">
+            ${batchMode ? `<input type="checkbox" class="item-check" ${checked} onclick="event.stopPropagation();toggleBatchItem('${safeSerial}')">` : ''}
             <div class="item-icon">${getItemIcon(e.product)}</div>
             <div class="item-info">
-                <div class="item-title">${e.role} — ${e.product}</div>
-                <div class="item-sub">${e.company} · ${e.crate || '—'} · ${e.location || '—'}</div>
+                <div class="item-title">${escapeHtml(e.role)} — ${escapeHtml(e.product)}</div>
+                <div class="item-sub">${escapeHtml(e.company)} · ${escapeHtml(e.crate) || '—'} · ${escapeHtml(e.location) || '—'}</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-                <div class="item-serial">${e.serial || '—'}</div>
+                <div class="item-serial">${escapeHtml(e.serial) || '—'}</div>
                 <span class="status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span>
             </div>
         </div>`;
-    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>אין תוצאות</p></div>';
+    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p><p style="font-size:0.75rem;margin-top:6px;color:var(--text3)">נסה חיפוש אחר או שנה סינון יחידה</p></div>';
 }
 
 function getItemIcon(product) {
@@ -1157,7 +1233,7 @@ function finishBatchSelect() {
                 const n = document.getElementById('f-items').children.length + 1;
                 const div = document.createElement('div');
                 div.className = 'form-item-row';
-                div.innerHTML = `<span>${n}.</span><input class="fi-name" value="${item.product}" readonly><input class="fi-qty" value="1"><input class="fi-serial" value="${item.serial}">`;
+                div.innerHTML = `<span>${n}.</span><input class="fi-name" value="${escapeHtml(item.product)}" readonly><input class="fi-qty" value="1"><input class="fi-serial" value="${escapeHtml(item.serial)}">`;
                 document.getElementById('f-items').appendChild(div);
             }
         });
@@ -1174,19 +1250,19 @@ function showItemDetail(serial) {
     overlay.classList.add('active');
 
     document.getElementById('detail-header').innerHTML = `
-        <h2>${item.product}</h2>
-        <p>${item.role} — ${getUnitDisplay(item.company)}</p>
+        <h2>${escapeHtml(item.product)}</h2>
+        <p>${escapeHtml(item.role)} — ${escapeHtml(getUnitDisplay(item.company))}</p>
     `;
 
     document.getElementById('detail-fields').innerHTML = `
-        <div class="detail-field"><span class="label">מספר סידורי</span><span class="value" style="font-family:monospace">${item.serial || '—'}</span></div>
-        <div class="detail-field"><span class="label">יחידה</span><span class="value">${item.company}</span></div>
-        <div class="detail-field"><span class="label">תפקיד</span><span class="value">${item.role}</span></div>
-        <div class="detail-field"><span class="label">מיקום</span><span class="value">${item.location || '—'}</span></div>
-        <div class="detail-field"><span class="label">ארגז</span><span class="value">${item.crate || '—'}</span></div>
+        <div class="detail-field"><span class="label">מספר סידורי</span><span class="value" style="font-family:monospace">${escapeHtml(item.serial) || '—'}</span></div>
+        <div class="detail-field"><span class="label">יחידה</span><span class="value">${escapeHtml(item.company)}</span></div>
+        <div class="detail-field"><span class="label">תפקיד</span><span class="value">${escapeHtml(item.role)}</span></div>
+        <div class="detail-field"><span class="label">מיקום</span><span class="value">${escapeHtml(item.location) || '—'}</span></div>
+        <div class="detail-field"><span class="label">ארגז</span><span class="value">${escapeHtml(item.crate) || '—'}</span></div>
         <div class="detail-field">
             <span class="label">סטטוס</span>
-            <select onchange="updateItemStatus('${item.serial}', this.value)" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;min-height:36px">
+            <select onchange="updateItemStatus('${escapeAttr(item.serial)}', this.value)" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;min-height:36px">
                 <option value="available" ${st==='available'?'selected':''}>זמין</option>
                 <option value="loaned" ${st==='loaned'?'selected':''}>מושאל</option>
                 <option value="damaged" ${st==='damaged'?'selected':''}>תקול</option>
@@ -1314,12 +1390,18 @@ function manualQrSearch() {
 
 function stopQr() {
     if (qrScanner) {
-        qrScanner.stop().catch(() => {});
-        qrScanner.clear().catch(() => {});
+        const scanner = qrScanner;
         qrScanner = null;
+        scanner.stop().then(() => {
+            scanner.clear();
+        }).catch(() => {
+            try { scanner.clear(); } catch(e) {}
+        });
     }
-    document.getElementById('qr-start-btn').style.display = '';
-    document.getElementById('qr-stop-btn').style.display = 'none';
+    const startBtn = document.getElementById('qr-start-btn');
+    const stopBtn = document.getElementById('qr-stop-btn');
+    if (startBtn) startBtn.style.display = '';
+    if (stopBtn) stopBtn.style.display = 'none';
 }
 
 function onQrScanned(text) {
@@ -1329,23 +1411,23 @@ function onQrScanned(text) {
     // Try to find item by serial
     const item = EQUIPMENT.find(e => e.serial === text || e.serial === text.trim());
     if (item) {
-        resultEl.innerHTML = `<div style="color:var(--green);font-size:1rem;margin-bottom:4px">נמצא!</div>צ' ${item.serial}`;
+        resultEl.innerHTML = `<div style="color:var(--green);font-size:1rem;margin-bottom:4px">נמצא!</div>צ' ${escapeHtml(item.serial)}`;
         const st = getStatusForItem(item.serial);
         document.getElementById('qr-item-detail').innerHTML = `
             <div class="form-card" style="margin-top:12px">
-                <h2>${item.product}</h2>
-                <h3>${item.role} — ${item.company}</h3>
+                <h2>${escapeHtml(item.product)}</h2>
+                <h3>${escapeHtml(item.role)} — ${escapeHtml(item.company)}</h3>
                 <div class="detail-fields">
-                    <div class="detail-field"><span class="label">מספר סידורי</span><span class="value">${item.serial}</span></div>
-                    <div class="detail-field"><span class="label">תפקיד</span><span class="value">${item.role}</span></div>
-                    <div class="detail-field"><span class="label">יחידה</span><span class="value">${item.company}</span></div>
-                    <div class="detail-field"><span class="label">מיקום</span><span class="value">${item.location || '—'}</span></div>
-                    <div class="detail-field"><span class="label">ארגז</span><span class="value">${item.crate || '—'}</span></div>
+                    <div class="detail-field"><span class="label">מספר סידורי</span><span class="value">${escapeHtml(item.serial)}</span></div>
+                    <div class="detail-field"><span class="label">תפקיד</span><span class="value">${escapeHtml(item.role)}</span></div>
+                    <div class="detail-field"><span class="label">יחידה</span><span class="value">${escapeHtml(item.company)}</span></div>
+                    <div class="detail-field"><span class="label">מיקום</span><span class="value">${escapeHtml(item.location) || '—'}</span></div>
+                    <div class="detail-field"><span class="label">ארגז</span><span class="value">${escapeHtml(item.crate) || '—'}</span></div>
                     <div class="detail-field"><span class="label">סטטוס</span><span class="status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span></div>
                 </div>
             </div>`;
     } else {
-        resultEl.innerHTML = `<div style="color:var(--orange)">נסרק: ${text}</div><div style="font-size:0.8rem;margin-top:4px">פריט לא נמצא במאגר</div>`;
+        resultEl.innerHTML = `<div style="color:var(--orange)">נסרק: ${escapeHtml(text)}</div><div style="font-size:0.8rem;margin-top:4px">פריט לא נמצא במאגר</div>`;
         document.getElementById('qr-item-detail').innerHTML = '';
     }
 }
@@ -1359,7 +1441,14 @@ function initForm() {
     const user = getUserInfo();
     if (user.name) document.getElementById('sig-issuer-name').value = user.name;
     if (user.rank) document.getElementById('sig-issuer-rank').value = user.rank;
-    if (user.unit) document.getElementById('f-from').value = user.unit;
+    // Default "from" field: user settings unit, fallback to hardcoded battalion
+    const fromField = document.getElementById('f-from');
+    if (user.unit) {
+        fromField.value = user.unit;
+    } else if (!fromField.value) {
+        fromField.value = 'קשר גדוד 7155';
+    }
+    formDirty = false;
     setTimeout(() => { initSigPad('issuer'); initSigPad('receiver'); }, 100);
 }
 
@@ -1372,6 +1461,16 @@ function addFormRow() {
 }
 
 // Autocomplete for item names
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function escapeAttr(str) {
+    if (!str) return '';
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
 function showAutocomplete(input) {
     const val = input.value.toLowerCase();
     const list = input.parentElement.querySelector('.autocomplete-list');
@@ -1379,14 +1478,14 @@ function showAutocomplete(input) {
 
     const matches = EQUIPMENT.filter(e =>
         e.product.toLowerCase().includes(val) ||
-        e.serial.includes(val) ||
+        (e.serial && e.serial.includes(val)) ||
         e.role.toLowerCase().includes(val)
     ).slice(0, 8);
 
     if (matches.length === 0) { list.classList.remove('show'); return; }
 
     list.innerHTML = matches.map(e => `
-        <div class="autocomplete-item" onmousedown="selectAutocomplete(this, '${e.product}', '${e.serial}')">${e.product} — ${e.role} (${e.serial || "ללא צ'"})</div>
+        <div class="autocomplete-item" onmousedown="selectAutocomplete(this, '${escapeAttr(e.product)}', '${escapeAttr(e.serial)}')">${escapeHtml(e.product)} — ${escapeHtml(e.role)} (${escapeHtml(e.serial) || "ללא צ'"})</div>
     `).join('');
     list.classList.add('show');
 }
@@ -1500,10 +1599,16 @@ async function saveForm() {
         const name = row.querySelector('.fi-name');
         const qty = row.querySelector('.fi-qty');
         const serial = row.querySelector('.fi-serial');
-        if (name && name.value) items.push({ name: name.value, qty: qty ? qty.value : '1', serial: serial ? serial.value : '' });
+        if (name && name.value.trim()) items.push({ name: name.value.trim(), qty: qty ? qty.value : '1', serial: serial ? serial.value : '' });
     });
-    if (!items.length) { showToast('הוסף לפחות פריט אחד'); return; }
-    if (!document.getElementById('f-to').value) { showToast('מלא את שדה היחידה המקבלת'); return; }
+
+    // Complete form validation
+    if (!document.getElementById('f-from').value.trim()) { showToast('מלא את שדה היחידה המנפיקה'); return; }
+    if (!document.getElementById('f-to').value.trim()) { showToast('מלא את שדה היחידה המקבלת'); return; }
+    if (!document.getElementById('f-date').value) { showToast('בחר תאריך'); return; }
+    if (!items.length) { showToast('הוסף לפחות פריט אחד עם שם'); return; }
+    if (!document.getElementById('sig-issuer-name').value.trim()) { showToast('מלא שם מנפק/ת'); return; }
+    if (!document.getElementById('sig-receiver-name').value.trim()) { showToast('מלא שם מקבל/ת'); return; }
 
     const receipt = {
         id: 'r_' + Date.now(),
@@ -1537,6 +1642,7 @@ async function saveForm() {
     try { localStorage.setItem('kashrio_receipts', JSON.stringify(receipts)); } catch(e) {}
 
     showToast('הטופס נשמר בהצלחה!');
+    formDirty = false;
     // Reset form
     document.getElementById('f-to').value = '';
     document.getElementById('f-items').innerHTML = '';
@@ -1547,6 +1653,8 @@ async function saveForm() {
     document.getElementById('sig-issuer-rank').value = '';
     document.getElementById('sig-receiver-rank').value = '';
     document.getElementById('f-notes').value = '';
+    // Update receipts counter
+    document.getElementById('stat-receipts').textContent = receipts.length;
 }
 
 // ===== RECEIPTS =====
@@ -1570,7 +1678,7 @@ async function renderReceipts() {
 
     const list = document.getElementById('receipts-list');
     if (!receipts.length) {
-        list.innerHTML = '<div class="empty-state"><div class="icon">📄</div><p>אין טפסים שמורים</p></div>';
+        list.innerHTML = '<div class="empty-state"><div class="icon">📄</div><p>אין טפסים שמורים</p><p style="font-size:0.75rem;margin-top:8px;color:var(--text3)">טפסי החתמה שתמלא יופיעו כאן</p><button class="btn btn-primary btn-sm" style="margin-top:12px;width:auto;display:inline-block" onclick="navigate(\'sign\')">צור טופס חדש</button></div>';
         return;
     }
     list.innerHTML = receipts.map(r => `
@@ -1683,24 +1791,39 @@ function initApp() {
 }
 
 // ===== OFFLINE DETECTION =====
+let wasOffline = false;
 function updateOnlineStatus() {
-    document.body.classList.toggle('offline', !navigator.onLine);
+    const isOffline = !navigator.onLine;
+    document.body.classList.toggle('offline', isOffline);
+    if (isOffline) {
+        wasOffline = true;
+    } else if (wasOffline) {
+        wasOffline = false;
+        showToast('חיבור לאינטרנט חזר');
+    }
 }
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
+
+// Warn before closing tab if form has data
+window.addEventListener('beforeunload', (e) => {
+    if (isFormDirty()) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
 
 // ===== EQUIPMENT FALLBACK DATA (185 items) =====
 const EQUIPMENT_FALLBACK = [{"company":"א","role":"מ\"פ א'","product":"מכשיר 710","serial":"497527","location":"A2","crate":"ארגז 1"},{"company":"א","role":"מ\"פ א'","product":"אול\"ר","serial":"102302379","location":"A2","crate":"ארגז 1"},{"company":"א","role":"מ\"פ א'","product":"סל\"צ","serial":"563843","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קשר מ\"פ","product":"מכשיר 710","serial":"556829","location":"A2","crate":"ארגז 1"},{"company":"א","role":"סמ\"פ א'","product":"מכשיר 710","serial":"804506","location":"A2","crate":"ארגז 1"},{"company":"א","role":"סמ\"פ א'","product":"אול\"ר","serial":"102302219","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קשר סמ\"פ","product":"מכשיר 710","serial":"494161","location":"A2","crate":"ארגז 1"},{"company":"א","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"582178","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"492574","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 1","product":"מכשיר 710","serial":"495412","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 1","product":"אול\"ר","serial":"102302072","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 2","product":"מכשיר 710","serial":"493998","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 2","product":"אול\"ר","serial":"102302664","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 3","product":"מכשיר 710","serial":"498032","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 3","product":"אול\"ר","serial":"102307771","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 4","product":"מכשיר 710","serial":"495544","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 4","product":"אול\"ר","serial":"102307786","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 1","product":"מכשיר 710","serial":"490382","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 1","product":"אול\"ר","serial":"102307782","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 2","product":"מכשיר 710","serial":"804492","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 2","product":"אול\"ר","serial":"102302397","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 3","product":"מכשיר 710","serial":"497776","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 3","product":"אול\"ר","serial":"102307778","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 4","product":"מכשיר 710","serial":"492720","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 4","product":"אול\"ר","serial":"102307775","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מכ 1","product":"אול\"ר","serial":"102303874","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 2","product":"אול\"ר","serial":"102307086","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 3","product":"אול\"ר","serial":"102312496","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 4","product":"אול\"ר","serial":"102305058","location":"A2","crate":"ארגז 3"},{"company":"ב","role":"מ\"פ ב'","product":"מכשיר 710","serial":"803167","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"מ\"פ ב'","product":"אול\"ר","serial":"102301373","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"מ\"פ ב'","product":"סל\"צ","serial":"546174","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קשר מ\"פ ב'","product":"מכשיר 710","serial":"808391","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"סמ\"פ ב'","product":"מכשיר 710","serial":"556905","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"סמ\"פ ב'","product":"אול\"ר","serial":"102302322","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קשר סמ\"פ ב'","product":"מכשיר 710","serial":"808586","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"497552","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"492651","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 1","product":"מכשיר 710","serial":"808223","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 1","product":"אול\"ר","serial":"102302316","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 2","product":"מכשיר 710","serial":"494073","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 2","product":"אול\"ר","serial":"102307584","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 3","product":"מכשיר 710","serial":"497803","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 3","product":"אול\"ר","serial":"102307777","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 4","product":"מכשיר 710","serial":"802325","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 4","product":"אול\"ר","serial":"102307779","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 1","product":"מכשיר 710","serial":"492247","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 1","product":"אול\"ר","serial":"102307780","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 2","product":"מכשיר 710","serial":"497513","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 2","product":"אול\"ר","serial":"102307784","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 3","product":"מכשיר 710","serial":"491307","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 3","product":"אול\"ר","serial":"102307776","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 4","product":"מכשיר 710","serial":"495496","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 4","product":"אול\"ר","serial":"102307785","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מכ 1","product":"אול\"ר","serial":"102307078","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 2","product":"אול\"ר","serial":"102307770","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 3","product":"אול\"ר","serial":"102305070","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 4","product":"אול\"ר","serial":"102312261","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"תגבור 1","product":"אול\"ר","serial":"102305962","location":"","crate":""},{"company":"ב","role":"תגבור 2","product":"אול\"ר","serial":"102301029","location":"","crate":""},{"company":"ג","role":"מ\"פ ג'","product":"מכשיר 710","serial":"803916","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"מ\"פ ג'","product":"אול\"ר","serial":"102302650","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"מ\"פ ג'","product":"סל\"צ","serial":"548169","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קשר מ\"פ ג'","product":"מכשיר 710","serial":"490983","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"סמ\"פ ג'","product":"מכשיר 710","serial":"492847","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"סמ\"פ ג'","product":"אול\"ר","serial":"102305077","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קשר סמ\"פ ג'","product":"מכשיר 710","serial":"801625","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"497714","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"804725","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 1","product":"מכשיר 710","serial":"491889","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 1","product":"אול\"ר","serial":"102302079","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 2","product":"מכשיר 710","serial":"491221","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 2","product":"אול\"ר","serial":"102302667","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 3","product":"מכשיר 710","serial":"489584","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 3","product":"אול\"ר","serial":"102302114","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 4","product":"מכשיר 710","serial":"542122","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 4","product":"אול\"ר","serial":"102302656","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 1","product":"מכשיר 710","serial":"824011","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 1","product":"אול\"ר","serial":"102307783","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 2","product":"מכשיר 710","serial":"803307","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 2","product":"אול\"ר","serial":"102307774","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 3","product":"מכשיר 710","serial":"803336","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 3","product":"אול\"ר","serial":"102307781","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 4","product":"מכשיר 710","serial":"801052","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 4","product":"אול\"ר","serial":"102307772","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מכ 1","product":"אול\"ר","serial":"102307088","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 2","product":"אול\"ר","serial":"102307084","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 3","product":"אול\"ר","serial":"102307082","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 4","product":"אול\"ר","serial":"102307080","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"תגבור 1","product":"אול\"ר","serial":"102313364","location":"","crate":""},{"company":"ג","role":"תגבור 2","product":"אול\"ר","serial":"102305131","location":"","crate":""},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"מכשיר 710","serial":"489828","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"אול\"ר","serial":"102304131","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"סל\"צ","serial":"551645","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר מ\"פ","product":"מכשיר 710","serial":"557186","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר מ\"פ","product":"אול\"ר","serial":"102307087","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"סמ\"פ מסייעת","product":"מכשיר 710","serial":"607222","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"סמ\"פ מסייעת","product":"אול\"ר","serial":"102302214","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר סמ\"פ","product":"מכשיר 710","serial":"495614","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר סמ\"פ","product":"אול\"ר","serial":"102307076","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"מ פתן (ניוד)","product":"מכשיר 710","serial":"803054","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ פתן (ניוד)","product":"אול\"ר","serial":"102301552","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ סבלי חי\"ר (פינוי)","product":"מכשיר 710","serial":"492818","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ סבלי חי\"ר (פינוי)","product":"אול\"ר","serial":"102305403","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סמל סבלי חי\"ר ","product":"מכשיר 710","serial":"496159","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סמל סבלי חי\"ר ","product":"אול\"ר","serial":"102307089","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סבלי חי\"ר 3","product":"מכשיר 710","serial":"490261","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סבלי חי\"ר 4","product":"מכשיר 710","serial":"808638","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ אוהד 8","product":"מכשיר 710","serial":"824605","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 8","product":"אול\"ר","serial":"102315863","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 8","product":"מכשיר 710","serial":"802111","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 8","product":"אול\"ר","serial":"102301679","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 5","product":"מכשיר 710","serial":"803971","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 5","product":"אול\"ר","serial":"102302365","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 5","product":"מכשיר 710","serial":"824018","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 5","product":"אול\"ר","serial":"102302672","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 5","product":"מכשיר 710","serial":"492427","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 5","product":"אול\"ר","serial":"102305405","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 8","product":"מכשיר 710","serial":"802972","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 8","product":"אול\"ר","serial":"102302283","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ צלפים","product":"מכשיר 710","serial":"808303","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צלפים","product":"אול\"ר","serial":"102304758","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צלפים","product":"מכשיר 710","serial":"876913","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צלפים","product":"אול\"ר","serial":"102302679","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צלפים","product":"מכשיר 710","serial":"803368","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צלפים","product":"אול\"ר","serial":"102307075","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ מרגמות","product":"מכשיר 710","serial":"498041","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ מרגמות","product":"אול\"ר","serial":"102300793","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמ\"ל מרגמות","product":"מכשיר 710","serial":"494657","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמ\"ל מרגמות","product":"אול\"ר","serial":"102302367","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צמיד קל","product":"מכשיר 710","serial":"802355","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צמיד קל","product":"אול\"ר","serial":"102305076","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צמיד קל","product":"מכשיר 710","serial":"492877","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צמיד קל","product":"אול\"ר","serial":"102307081","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צמיד קל","product":"אול\"ר","serial":"102307079","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ מרגמות","product":"אול\"ר","serial":"102307077","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ","product":"אול\"ר","serial":"102307073","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ פתן 3","product":"אול\"ר","serial":"102307072","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ פתן 4","product":"אול\"ר","serial":"102307083","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"רס\"פ ","product":"אול\"ר","serial":"102307074","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"סמל פתן (ניוד)","product":"אול\"ר","serial":"102304695","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"תגבור","product":"אול\"ר","serial":"102307324","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"חוליית ממסר רגלי","product":"מכשיר 91","serial":"","location":"B4","crate":"ארגז 17"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"מכשיר 710","serial":"824409","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"אול\"ר פלוס","serial":"111220355","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"אול\"ר","serial":"102302668","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"סל\"צ","serial":"549632","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מפקד חפ\"ק","product":"מכשיר 710","serial":"491531","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"מכשיר 710","serial":"804469","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"אול\"ר","serial":"102302301","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"סל\"צ","serial":"548483","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמב\"ץ","product":"מכשיר 710","serial":"494053","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמב\"ץ","product":"אול\"ר","serial":"102302239","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמ\"ן","product":"מכשיר 710","serial":"801918","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמ\"ן","product":"אול\"ר","serial":"102302056","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר קמ\"ן","product":"מכשיר 710","serial":"493054","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קש\"א","product":"מכשיר 711","serial":"","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קש\"א","product":"אול\"ר","serial":"102302137","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר קש\"א","product":"מכשיר 710","serial":"582264","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר מג\"ד","product":"מכשיר 710","serial":"491019","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר\"ג","product":"מכשיר 710","serial":"490744","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר\"ג","product":"אול\"ר","serial":"102302190","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר ק. אג\"ם","product":"מכשיר 710","serial":"490804","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"יונק דבש רחפנים","product":"מכשיר 710","serial":"583040","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"יונק דבש רחפנים","product":"אול\"ר","serial":"102302224","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"מכשיר 710","serial":"490503","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"אול\"ר פלוס","serial":"111220353","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"אול\"ר","serial":"102315666","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"סל\"צ","serial":"547464","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"קשר סמג\"ד 1","product":"מכשיר 710","serial":"493931","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"קשר סמג\"ד 2","product":"מכשיר 710","serial":"493873","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"מכשיר 710","serial":"803805","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"אול\"ר","serial":"102305484","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"סל\"צ","serial":"553267","location":"B3","crate":"ארגז 22"},{"company":"חולייה רפואית","role":"רופא","product":"מכשיר 710","serial":"489877","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"רופא","product":"אול\"ר","serial":"102301759","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"רופא","product":"סל\"צ","serial":"551589","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"קשר רופא","product":"מכשיר 710","serial":"582550","location":"B3","crate":"ארגז 23"},{"company":"מפג\"ד","role":"סמ\"פ פלס\"ם","product":"אול\"ר","serial":"102305059","location":"B3","crate":"ארגז 25"},{"company":"מפג\"ד","role":"חפ\"ק לבנון","product":"מכשיר 91","serial":"","location":"B3","crate":"ארגז 24"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"497894","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"סל\"צ","serial":"549095","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"496091","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"808526","location":"","crate":""},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"803241","location":"כ\"ס אוגדה","crate":"ארגזים"}];
 
 // ===== INIT =====
 loadEquipment().then(() => {
-    const path = location.pathname.replace(/^\//, '') || 'home';
+    const page = location.hash.replace('#', '') || 'home';
     const validPages = ['home','status','sign','qr','items','receipts','settings'];
-    if (validPages.includes(path) && path !== 'home') {
-        navigate(path, false);
+    if (validPages.includes(page) && page !== 'home') {
+        navigate(page, false);
     }
-    history.replaceState({ page: path }, '', location.pathname);
 });
 </script>
 </body>
