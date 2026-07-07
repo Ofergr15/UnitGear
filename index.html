@@ -91,6 +91,18 @@
         .page.active { display: block; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Home welcome */
+        .home-welcome {
+            text-align: center;
+            margin-bottom: 14px;
+            padding: 12px;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .welcome-date { font-size: 0.9rem; color: var(--text2); }
+        .welcome-time { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 2px; }
+
         /* Stats bar */
         .stats-bar {
             background: var(--card);
@@ -595,21 +607,26 @@
 <div class="container">
     <!-- HOME / DASHBOARD -->
     <div class="page active" id="page-home">
+        <div class="home-welcome" id="home-welcome">
+            <div class="welcome-date" id="home-date"></div>
+            <div class="welcome-time" id="home-time"></div>
+        </div>
         <div class="stats-bar">
             <div class="stat"><div class="num" id="stat-total">185</div><div class="lbl">פריטים</div></div>
-            <div class="stat"><div class="num" id="stat-types">6</div><div class="lbl">סוגי ציוד</div></div>
-            <div class="stat"><div class="num" id="stat-units">5</div><div class="lbl">יחידות</div></div>
+            <div class="stat"><div class="num" id="stat-available">0</div><div class="lbl">זמינים</div></div>
+            <div class="stat"><div class="num" id="stat-loaned">0</div><div class="lbl">מושאלים</div></div>
+            <div class="stat"><div class="num" id="stat-receipts">0</div><div class="lbl">טפסים</div></div>
         </div>
         <div class="dash-grid">
-            <div class="dash-box" onclick="navigate('status')">
-                <div class="icon">📊</div>
-                <div class="title">מצב ציוד</div>
-                <div class="subtitle">סטטוס לפי יחידה והיררכיה</div>
-            </div>
             <div class="dash-box highlight" onclick="navigate('sign')">
                 <div class="icon">✍️</div>
                 <div class="title">החתמה חדשה</div>
                 <div class="subtitle">טופס 1008 דיגיטלי</div>
+            </div>
+            <div class="dash-box" onclick="navigate('status')">
+                <div class="icon">📊</div>
+                <div class="title">מצב ציוד</div>
+                <div class="subtitle">סטטוס לפי יחידה והיררכיה</div>
             </div>
             <div class="dash-box" onclick="navigate('qr')">
                 <div class="icon">📷</div>
@@ -753,13 +770,14 @@
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
         <button class="back-btn" onclick="navigate('home')">&#8592; חזרה</button>
-        <div class="section-title">הגדרות</div>
-        <div class="setting-row">
-            <div><div class="label">שם המשתמש</div><div class="desc">קצין קשר גדוד 7155</div></div>
+        <div class="section-title">פרטי המשתמש (מנפק)</div>
+        <div class="form-card" style="margin-bottom:16px">
+            <div class="form-field"><label>שם מלא</label><input id="set-name" placeholder="שם פרטי ומשפחה" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>דרגה / מ.א.</label><input id="set-rank" placeholder="סג\"מ / 1234567" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>תפקיד</label><input id="set-role" placeholder="קצין קשר" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>יחידה</label><input id="set-unit" placeholder="גדוד 7155" oninput="saveUserInfo()"></div>
         </div>
-        <div class="setting-row">
-            <div><div class="label">יחידה</div><div class="desc">גדוד 7155 — חטיבה 228</div></div>
-        </div>
+        <div class="section-title">מידע כללי</div>
         <div class="setting-row">
             <div><div class="label">מקור נתונים</div><div class="desc" id="data-source-desc">Supabase (185 פריטים)</div></div>
         </div>
@@ -861,6 +879,29 @@ function getStatusForItem(serial) {
 const STATUS_LABELS = { available: 'זמין', loaned: 'מושאל', damaged: 'תקול', repair: 'בתיקון' };
 const STATUS_CLASSES = { available: 'badge-available', loaned: 'badge-loaned', damaged: 'badge-damaged', repair: 'badge-repair' };
 const STATUS_COLORS = { available: '#27ae60', loaned: '#e67e22', damaged: '#e74c3c', repair: '#f1c40f' };
+
+// ===== USER INFO =====
+function getUserInfo() {
+    try { return JSON.parse(localStorage.getItem('kashrio_user') || '{}'); } catch(e) { return {}; }
+}
+function saveUserInfo() {
+    const info = {
+        name: document.getElementById('set-name').value,
+        rank: document.getElementById('set-rank').value,
+        role: document.getElementById('set-role').value,
+        unit: document.getElementById('set-unit').value
+    };
+    localStorage.setItem('kashrio_user', JSON.stringify(info));
+}
+function loadUserInfo() {
+    const info = getUserInfo();
+    if (document.getElementById('set-name')) {
+        document.getElementById('set-name').value = info.name || '';
+        document.getElementById('set-rank').value = info.rank || '';
+        document.getElementById('set-role').value = info.role || '';
+        document.getElementById('set-unit').value = info.unit || '';
+    }
+}
 
 // ===== TOAST =====
 function showToast(msg) {
@@ -1315,6 +1356,10 @@ function initForm() {
     if (!document.getElementById('f-items').children.length) {
         for (let i = 0; i < 4; i++) addFormRow();
     }
+    const user = getUserInfo();
+    if (user.name) document.getElementById('sig-issuer-name').value = user.name;
+    if (user.rank) document.getElementById('sig-issuer-rank').value = user.rank;
+    if (user.unit) document.getElementById('f-from').value = user.unit;
     setTimeout(() => { initSigPad('issuer'); initSigPad('receiver'); }, 100);
 }
 
@@ -1600,15 +1645,29 @@ async function loadEquipment() {
 function initApp() {
     const products = {};
     const topUnits = new Set();
+    const statuses = getItemStatuses();
+    let availCount = 0, loanedCount = 0;
     EQUIPMENT.forEach(e => {
         products[e.product] = (products[e.product] || 0) + 1;
         for (const [name, info] of Object.entries(UNIT_HIERARCHY)) {
             if (info.companies.includes(e.company)) topUnits.add(name);
         }
+        const st = statuses[e.serial] || 'available';
+        if (st === 'available') availCount++;
+        if (st === 'loaned') loanedCount++;
     });
+
+    // Stats
     document.getElementById('stat-total').textContent = EQUIPMENT.length;
-    document.getElementById('stat-types').textContent = Object.keys(products).length;
-    document.getElementById('stat-units').textContent = topUnits.size;
+    document.getElementById('stat-available').textContent = availCount;
+    document.getElementById('stat-loaned').textContent = loanedCount;
+
+    // Date & time
+    const now = new Date();
+    const dayNames = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+    document.getElementById('home-date').textContent = `יום ${dayNames[now.getDay()]}, ${now.toLocaleDateString('he-IL')}`;
+    document.getElementById('home-time').textContent = now.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+
     document.getElementById('data-source-desc').textContent = dataFromDb
         ? `Supabase (${EQUIPMENT.length} פריטים)`
         : `נתוני גיבוי (${EQUIPMENT.length} פריטים)`;
@@ -1618,6 +1677,9 @@ function initApp() {
         const local = JSON.parse(localStorage.getItem('kashrio_receipts') || '[]');
         if (local.length) receipts = local;
     } catch(e) {}
+
+    document.getElementById('stat-receipts').textContent = receipts.length;
+    loadUserInfo();
 }
 
 // ===== OFFLINE DETECTION =====
