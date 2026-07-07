@@ -745,7 +745,10 @@
             <h1>קשריו</h1>
             <p>ניהול ציוד קשר — גדוד 7155</p>
         </div>
-        <span class="header-badge">v2.0</span>
+        <div style="display:flex;align-items:center;gap:8px">
+            <div id="header-status-mini" style="font-size:0.7rem;opacity:0.9;display:flex;align-items:center;gap:4px"></div>
+            <span class="header-badge">v2.1</span>
+        </div>
     </div>
 </div>
 
@@ -945,7 +948,7 @@
             <div><div class="label">מקור נתונים</div><div class="desc" id="data-source-desc">Supabase (185 פריטים)</div></div>
         </div>
         <div class="setting-row">
-            <div><div class="label">גרסה</div><div class="desc">2.0 — PWA מותאם לשטח</div></div>
+            <div><div class="label">גרסה</div><div class="desc">2.1 — תצוגות מרובות, סינון וייצוא</div></div>
         </div>
         <div class="section-title" style="margin-top:16px">ייצוא נתונים</div>
         <div class="setting-row" onclick="exportCSV()">
@@ -1566,6 +1569,7 @@ function showItemDetail(serial) {
 function updateItemStatus(serial, status) {
     setItemStatus(serial, status);
     showToast(`סטטוס עודכן: ${STATUS_LABELS[status]}`);
+    updateHeaderMini();
 }
 
 function closeItemDetail(event) {
@@ -2143,6 +2147,22 @@ function initApp() {
 
     document.getElementById('stat-receipts').textContent = receipts.length;
     loadUserInfo();
+    updateHeaderMini();
+}
+
+function updateHeaderMini() {
+    const statuses = getItemStatuses();
+    let avail = 0, loaned = 0, damaged = 0;
+    EQUIPMENT.forEach(e => {
+        const s = statuses[e.serial] || 'available';
+        if (s === 'available') avail++;
+        else if (s === 'loaned') loaned++;
+        else if (s === 'damaged' || s === 'repair') damaged++;
+    });
+    const el = document.getElementById('header-status-mini');
+    if (el) {
+        el.innerHTML = `<span style="color:#a7f3d0">${avail}</span>/<span style="color:#fed7aa">${loaned}</span>` + (damaged ? `/<span style="color:#fca5a5">${damaged}</span>` : '');
+    }
 }
 
 // ===== OFFLINE DETECTION =====
