@@ -12,6 +12,7 @@
     <title>קשריו — ניהול ציוד קשר</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary: #0f4c75;
@@ -209,10 +210,10 @@
             border-radius: var(--radius);
             padding: 14px 16px;
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 1rem;
             direction: rtl;
             margin-bottom: 14px;
-            min-height: 44px;
+            min-height: var(--min-touch);
         }
         .search-bar:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(50,130,184,0.12); }
 
@@ -785,7 +786,7 @@
     <!-- ITEMS -->
     <div class="page" id="page-items">
         <button class="back-btn" onclick="exitItems()">&#8592; חזרה</button>
-        <input type="text" class="search-bar" id="items-search" placeholder="חיפוש לפי צ', תפקיד, יחידה, סוג..." oninput="renderItems()">
+        <input type="search" class="search-bar" id="items-search" autocomplete="off" placeholder="חיפוש לפי צ', תפקיד, יחידה, סוג..." oninput="renderItems()">
         <div class="pills" id="unit-pills"></div>
         <div id="batch-bar" style="display:none"></div>
         <div id="items-list"></div>
@@ -1341,60 +1342,21 @@ function closeItemDetail(event) {
 
 // ===== QR CODE GENERATION (Simple SVG) =====
 function generateQRSvg(text) {
-    // Simple QR-like visual using the serial data
-    // For production, you'd use a proper QR library. This generates a visual representation.
-    const size = 160;
-    const modules = 21;
-    const moduleSize = size / modules;
-
-    // Generate a deterministic pattern from the text
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-        hash = ((hash << 5) - hash) + text.charCodeAt(i);
-        hash = hash & hash;
-    }
-
-    // Create binary matrix based on text hash
-    const matrix = [];
-    let seed = Math.abs(hash);
-    for (let row = 0; row < modules; row++) {
-        matrix[row] = [];
-        for (let col = 0; col < modules; col++) {
-            // Fixed patterns (position markers)
-            if ((row < 7 && col < 7) || (row < 7 && col >= modules-7) || (row >= modules-7 && col < 7)) {
-                // Position detection patterns
-                const inOuter = row === 0 || row === 6 || col === 0 || col === 6 ||
-                               row === modules-7 || row === modules-1 || col === modules-7 || col === modules-1;
-                const rr = row >= modules-7 ? row - (modules-7) : row;
-                const cc = col >= modules-7 ? col - (modules-7) : col;
-                if (rr >= 0 && rr <= 6 && cc >= 0 && cc <= 6) {
-                    if (rr === 0 || rr === 6 || cc === 0 || cc === 6) matrix[row][col] = 1;
-                    else if (rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4) matrix[row][col] = 1;
-                    else matrix[row][col] = 0;
-                } else {
-                    matrix[row][col] = inOuter ? 1 : 0;
-                }
-            } else {
-                // Data area - use seeded pseudo-random
-                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-                matrix[row][col] = (seed >> 16) & 1;
-            }
+    const id = 'qr-' + Math.random().toString(36).substr(2, 9);
+    setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el && typeof QRCode !== 'undefined') {
+            new QRCode(el, {
+                text: text,
+                width: 160,
+                height: 160,
+                colorDark: '#0f4c75',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
         }
-    }
-
-    let rects = '';
-    for (let row = 0; row < modules; row++) {
-        for (let col = 0; col < modules; col++) {
-            if (matrix[row][col]) {
-                rects += `<rect x="${col * moduleSize}" y="${row * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="#0f4c75"/>`;
-            }
-        }
-    }
-
-    return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${size}" height="${size}" fill="white"/>
-        ${rects}
-    </svg>
+    }, 50);
+    return `<div id="${id}" style="display:inline-block"></div>
     <p style="font-size:0.75rem;color:var(--text2);margin-top:6px">צ' ${escapeHtml(text)}</p>`;
 }
 
