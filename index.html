@@ -239,6 +239,61 @@
         .pill.active { background: var(--primary); color: white; border-color: var(--primary); }
         .pill.active:active { background: var(--primary-dark); }
 
+        /* View mode tabs */
+        .view-tabs { display: flex; gap: 0; margin-bottom: 14px; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+        .view-tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text2);
+            min-height: var(--min-touch);
+            transition: background 0.15s, color 0.15s;
+        }
+        .view-tab:active { background: #f0f2f5; }
+        .view-tab.active { background: var(--primary); color: white; }
+        .view-tab + .view-tab { border-right: 1px solid var(--border); }
+
+        /* Filter bar */
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .filter-select {
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.82rem;
+            background: var(--card);
+            min-height: var(--min-touch);
+            flex: 1;
+            min-width: 100px;
+            direction: rtl;
+        }
+        .filter-select:focus { outline: none; border-color: var(--primary-light); }
+
+        /* Group section */
+        .group-section { margin-bottom: 16px; }
+        .group-header {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            min-height: 52px;
+        }
+        .group-header:active { background: #f8f9fa; }
+        .group-header .group-name { font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .group-header .group-count { font-size: 0.82rem; color: var(--text2); font-weight: 600; }
+        .group-header .group-icon { font-size: 1.1rem; }
+        .group-items { padding-right: 8px; margin-bottom: 12px; }
+        .group-items.collapsed { display: none; }
+
         /* Item rows */
         .item-row {
             background: var(--card);
@@ -725,8 +780,8 @@
             </div>
             <div class="dash-box" onclick="navigate('items')">
                 <div class="icon">📋</div>
-                <div class="title">רשימת פריטים</div>
-                <div class="subtitle">חיפוש לפי צ', תפקיד</div>
+                <div class="title">ניהול פריטים</div>
+                <div class="subtitle">חיפוש, סינון וצפייה לפי קטגוריות</div>
             </div>
             <div class="dash-box" onclick="navigate('receipts')">
                 <div class="icon">📄</div>
@@ -786,7 +841,25 @@
     <!-- ITEMS -->
     <div class="page" id="page-items">
         <button class="back-btn" onclick="exitItems()">&#8592; חזרה</button>
-        <input type="search" class="search-bar" id="items-search" autocomplete="off" placeholder="חיפוש לפי צ', תפקיד, יחידה, סוג..." oninput="renderItems()">
+        <div class="view-tabs" id="view-tabs">
+            <div class="view-tab active" onclick="switchView('unit')">לפי יחידה</div>
+            <div class="view-tab" onclick="switchView('product')">לפי סוג</div>
+            <div class="view-tab" onclick="switchView('location')">לפי מיקום</div>
+            <div class="view-tab" onclick="switchView('role')">לפי תפקיד</div>
+        </div>
+        <input type="search" class="search-bar" id="items-search" autocomplete="off" placeholder="חיפוש לפי צ', תפקיד, יחידה, סוג..." oninput="renderCurrentView()">
+        <div class="filter-bar" id="filter-bar">
+            <select class="filter-select" id="filter-status" onchange="renderCurrentView()">
+                <option value="">כל הסטטוסים</option>
+                <option value="available">זמין</option>
+                <option value="loaned">מושאל</option>
+                <option value="damaged">תקול</option>
+                <option value="repair">בתיקון</option>
+            </select>
+            <select class="filter-select" id="filter-product" onchange="renderCurrentView()">
+                <option value="">כל הסוגים</option>
+            </select>
+        </div>
         <div class="pills" id="unit-pills"></div>
         <div id="batch-bar" style="display:none"></div>
         <div id="items-list"></div>
@@ -1040,13 +1113,13 @@ function navigate(page, pushState = true) {
     if (page === 'sign') initForm();
     if (page === 'receipts') renderReceipts();
     if (page === 'status') renderStatus();
-    if (page === 'items') { batchMode = false; batchSelected = []; renderPills(''); renderItems(); }
+    if (page === 'items') { batchMode = false; batchSelected = []; populateProductFilter(); renderPills(''); switchView('unit'); }
     if (page === 'qr') initQrPage();
 }
 
 window.addEventListener('hashchange', () => {
     const page = location.hash.replace('#', '') || 'home';
-    const validPages = ['home','status','sign','qr','items','receipts','settings'];
+    const validPages = ['home','status','status-sub','status-detail','sign','qr','items','receipts','settings'];
     if (validPages.includes(page)) navigate(page, false);
 });
 
@@ -1180,6 +1253,57 @@ function statusDetailBack() {
 }
 
 // ===== ITEMS PAGE =====
+let currentView = 'unit';
+let expandedGroups = {};
+
+function switchView(view) {
+    currentView = view;
+    document.querySelectorAll('#view-tabs .view-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`#view-tabs .view-tab[onclick*="${view}"]`).classList.add('active');
+    const pillsEl = document.getElementById('unit-pills');
+    pillsEl.style.display = view === 'unit' ? 'flex' : 'none';
+    expandedGroups = {};
+    renderCurrentView();
+}
+
+function renderCurrentView() {
+    if (batchMode) { renderItems(); return; }
+    switch(currentView) {
+        case 'unit': renderItems(); break;
+        case 'product': renderByProduct(); break;
+        case 'location': renderByLocation(); break;
+        case 'role': renderByRole(); break;
+        default: renderItems();
+    }
+}
+
+function getFilteredItems() {
+    if (!EQUIPMENT.length) return [];
+    const q = (document.getElementById('items-search').value || '').toLowerCase();
+    const statusFilter = document.getElementById('filter-status').value;
+    const productFilter = document.getElementById('filter-product').value;
+    const statuses = getItemStatuses();
+    let items = EQUIPMENT;
+    if (q) items = items.filter(e =>
+        (e.serial || '').toLowerCase().includes(q) ||
+        e.role.toLowerCase().includes(q) ||
+        e.product.toLowerCase().includes(q) ||
+        e.company.toLowerCase().includes(q) ||
+        (e.location || '').toLowerCase().includes(q) ||
+        (e.crate || '').toLowerCase().includes(q)
+    );
+    if (statusFilter) items = items.filter(e => (statuses[e.serial] || 'available') === statusFilter);
+    if (productFilter) items = items.filter(e => e.product === productFilter);
+    return items;
+}
+
+function populateProductFilter() {
+    const products = [...new Set(EQUIPMENT.map(e => e.product))].sort();
+    const sel = document.getElementById('filter-product');
+    sel.innerHTML = '<option value="">כל הסוגים</option>' +
+        products.map(p => `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`).join('');
+}
+
 function renderPills(active) {
     const topUnits = Object.keys(UNIT_HIERARCHY);
     document.getElementById('unit-pills').innerHTML =
@@ -1191,28 +1315,16 @@ function renderPills(active) {
 }
 
 function renderItems() {
-    // Empty state when no equipment data at all
     if (!EQUIPMENT.length) {
-        document.getElementById('items-list').innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>אין פריטים במערכת</p><p style="font-size:0.75rem;margin-top:8px;color:var(--text3)">בדוק חיבור לאינטרנט או פנה למנהל המערכת</p></div>';
+        document.getElementById('items-list').innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>אין פריטים במערכת</p></div>';
         return;
     }
-
-    const q = (document.getElementById('items-search').value || '').toLowerCase();
-    let items = EQUIPMENT;
-
-    if (currentFilter && !q) {
+    let items = getFilteredItems();
+    if (currentFilter && currentView === 'unit') {
         const info = UNIT_HIERARCHY[currentFilter];
         if (info) items = items.filter(e => info.companies.includes(e.company));
     }
-    if (q) items = items.filter(e =>
-        (e.serial || '').toLowerCase().includes(q) ||
-        e.role.toLowerCase().includes(q) ||
-        e.product.toLowerCase().includes(q) ||
-        e.company.toLowerCase().includes(q) ||
-        (e.location || '').toLowerCase().includes(q)
-    );
 
-    // Batch bar
     if (batchMode && batchSelected.length > 0) {
         document.getElementById('batch-bar').style.display = 'block';
         document.getElementById('batch-bar').innerHTML = `
@@ -1232,7 +1344,7 @@ function renderItems() {
     }
 
     const statuses = getItemStatuses();
-    document.getElementById('items-list').innerHTML = items.slice(0, 150).map(e => {
+    document.getElementById('items-list').innerHTML = items.slice(0, 200).map(e => {
         const st = statuses[e.serial] || 'available';
         const checked = batchSelected.includes(e.serial) ? 'checked' : '';
         const safeSerial = escapeAttr(e.serial);
@@ -1249,13 +1361,126 @@ function renderItems() {
                 <span class="status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span>
             </div>
         </div>`;
-    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p><p style="font-size:0.75rem;margin-top:6px;color:var(--text3)">נסה חיפוש אחר או שנה סינון יחידה</p></div>';
+    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p></div>';
+
+    if (items.length > 200) {
+        document.getElementById('items-list').innerHTML += `<div style="text-align:center;padding:12px;color:var(--text3);font-size:0.8rem">מוצגים 200 מתוך ${items.length} פריטים. צמצם חיפוש לתוצאות מדויקות יותר</div>`;
+    }
+}
+
+function renderByProduct() {
+    const items = getFilteredItems();
+    const groups = {};
+    items.forEach(e => {
+        if (!groups[e.product]) groups[e.product] = [];
+        groups[e.product].push(e);
+    });
+    const sorted = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
+    document.getElementById('items-list').innerHTML = sorted.map(([product, pItems]) => {
+        const gid = 'gp_' + product.replace(/[^a-zA-Z0-9א-ת]/g,'');
+        const expanded = expandedGroups[gid];
+        return `
+        <div class="group-section">
+            <div class="group-header" onclick="toggleGroup('${escapeAttr(gid)}')">
+                <div class="group-name"><span class="group-icon">${getItemIcon(product)}</span> ${escapeHtml(product)}</div>
+                <div class="group-count">${pItems.length} פריטים ${expanded ? '▲' : '▼'}</div>
+            </div>
+            <div class="group-items ${expanded ? '' : 'collapsed'}" id="${gid}">
+                ${renderGroupItems(pItems)}
+            </div>
+        </div>`;
+    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p></div>';
+}
+
+function renderByLocation() {
+    const items = getFilteredItems();
+    const groups = {};
+    items.forEach(e => {
+        const loc = (e.location || 'לא ידוע') + (e.crate ? ' / ' + e.crate : '');
+        if (!groups[loc]) groups[loc] = [];
+        groups[loc].push(e);
+    });
+    const sorted = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
+    document.getElementById('items-list').innerHTML = sorted.map(([loc, lItems]) => {
+        const gid = 'gl_' + loc.replace(/[^a-zA-Z0-9א-ת]/g,'');
+        const expanded = expandedGroups[gid];
+        return `
+        <div class="group-section">
+            <div class="group-header" onclick="toggleGroup('${escapeAttr(gid)}')">
+                <div class="group-name"><span class="group-icon">📍</span> ${escapeHtml(loc)}</div>
+                <div class="group-count">${lItems.length} פריטים ${expanded ? '▲' : '▼'}</div>
+            </div>
+            <div class="group-items ${expanded ? '' : 'collapsed'}" id="${gid}">
+                ${renderGroupItems(lItems)}
+            </div>
+        </div>`;
+    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p></div>';
+}
+
+function renderByRole() {
+    const items = getFilteredItems();
+    const groups = {};
+    items.forEach(e => {
+        const key = e.company + ' — ' + e.role;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(e);
+    });
+    const sorted = Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0], 'he'));
+    document.getElementById('items-list').innerHTML = sorted.map(([role, rItems]) => {
+        const gid = 'gr_' + role.replace(/[^a-zA-Z0-9א-ת]/g,'');
+        const expanded = expandedGroups[gid];
+        return `
+        <div class="group-section">
+            <div class="group-header" onclick="toggleGroup('${escapeAttr(gid)}')">
+                <div class="group-name"><span class="group-icon">👤</span> ${escapeHtml(role)}</div>
+                <div class="group-count">${rItems.length} פריטים ${expanded ? '▲' : '▼'}</div>
+            </div>
+            <div class="group-items ${expanded ? '' : 'collapsed'}" id="${gid}">
+                ${renderGroupItems(rItems)}
+            </div>
+        </div>`;
+    }).join('') || '<div class="empty-state"><div class="icon">🔍</div><p>לא נמצאו פריטים</p></div>';
+}
+
+function renderGroupItems(items) {
+    const statuses = getItemStatuses();
+    return items.slice(0, 50).map(e => {
+        const st = statuses[e.serial] || 'available';
+        return `
+        <div class="item-row" onclick="showItemDetail('${escapeAttr(e.serial)}')">
+            <div class="item-icon">${getItemIcon(e.product)}</div>
+            <div class="item-info">
+                <div class="item-title">${escapeHtml(e.role)} — ${escapeHtml(e.product)}</div>
+                <div class="item-sub">${escapeHtml(e.company)} · ${escapeHtml(e.crate) || '—'}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                <div class="item-serial">${escapeHtml(e.serial) || '—'}</div>
+                <span class="status-badge ${STATUS_CLASSES[st]}">${STATUS_LABELS[st]}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleGroup(gid) {
+    expandedGroups[gid] = !expandedGroups[gid];
+    const el = document.getElementById(gid);
+    if (el) el.classList.toggle('collapsed');
+    const header = el?.previousElementSibling;
+    if (header) {
+        const countEl = header.querySelector('.group-count');
+        if (countEl) countEl.innerHTML = countEl.innerHTML.replace(/[▲▼]/, expandedGroups[gid] ? '▲' : '▼');
+    }
 }
 
 function getItemIcon(product) {
     if (product.includes('710') || product.includes('711') || product.includes('91')) return '📻';
     if (product.includes('סל')) return '📞';
-    return '📱';
+    if (product.includes('אול')) return '📱';
+    if (product.includes('מגבר') || product.includes('שו"ב')) return '🔊';
+    if (product.includes('אנטנ')) return '📡';
+    if (product.includes('סולל')) return '🔋';
+    if (product.includes('כבל') || product.includes('חוט')) return '🔌';
+    return '📦';
 }
 
 // ===== BATCH SELECT =====
