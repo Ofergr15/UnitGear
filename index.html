@@ -947,8 +947,15 @@
         <div class="setting-row">
             <div><div class="label">גרסה</div><div class="desc">2.0 — PWA מותאם לשטח</div></div>
         </div>
+        <div class="section-title" style="margin-top:16px">ייצוא נתונים</div>
+        <div class="setting-row" onclick="exportCSV()">
+            <div><div class="label" style="color:var(--primary)">ייצוא CSV (אקסל)</div><div class="desc">טבלת ציוד מלאה — ניתנת לפתיחה באקסל</div></div>
+        </div>
         <div class="setting-row" onclick="exportData()">
-            <div><div class="label" style="color:var(--primary)">ייצוא נתונים</div><div class="desc">הורד את כל המידע כ-JSON</div></div>
+            <div><div class="label" style="color:var(--primary)">ייצוא JSON</div><div class="desc">כל המידע כולל סטטוסים וטפסים</div></div>
+        </div>
+        <div class="setting-row" onclick="exportStatusReport()">
+            <div><div class="label" style="color:var(--primary)">דוח מצב ציוד</div><div class="desc">סיכום ציוד לפי יחידה וסטטוס — להדפסה</div></div>
         </div>
         <div class="setting-row" onclick="if(confirm('למחוק את כל הטפסים השמורים מהמכשיר?')){localStorage.removeItem('kashrio_receipts');showToast('הטפסים נמחקו')}">
             <div><div class="label" style="color:var(--red)">מחק טפסים שמורים</div><div class="desc">ניקוי היסטוריית החתמות מהמכשיר</div></div>
@@ -1996,17 +2003,77 @@ function viewReceipt(id) {
     w.document.close();
 }
 
-// ===== SETTINGS =====
+// ===== SETTINGS & EXPORT =====
 function exportData() {
     const data = { equipment: EQUIPMENT, receipts, statuses: getItemStatuses(), exported: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    downloadBlob(blob, `kashrio_export_${new Date().toISOString().split('T')[0]}.json`);
+    showToast('נתונים יוצאו בהצלחה');
+}
+
+function exportCSV() {
+    const statuses = getItemStatuses();
+    const BOM = '\uFEFF';
+    const header = ['יחידה','תפקיד','סוג ציוד','מספר סידורי','מיקום','ארגז','סטטוס'];
+    const rows = EQUIPMENT.map(e => {
+        const st = STATUS_LABELS[statuses[e.serial] || 'available'];
+        return [e.company, e.role, e.product, e.serial || '', e.location || '', e.crate || '', st];
+    });
+    const csv = BOM + [header, ...rows].map(r => r.map(c => `"${(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    downloadBlob(blob, `kashrio_equipment_${new Date().toISOString().split('T')[0]}.csv`);
+    showToast('קובץ CSV הורד — ניתן לפתוח באקסל');
+}
+
+function exportStatusReport() {
+    const statuses = getItemStatuses();
+    const now = new Date();
+    let counts = { available: 0, loaned: 0, damaged: 0, repair: 0 };
+    EQUIPMENT.forEach(e => { counts[statuses[e.serial] || 'available']++; });
+
+    let unitRows = '';
+    for (const [unitName, info] of Object.entries(UNIT_HIERARCHY)) {
+        const unitItems = EQUIPMENT.filter(e => info.companies.includes(e.company));
+        let uc = { available: 0, loaned: 0, damaged: 0, repair: 0 };
+        unitItems.forEach(e => { uc[statuses[e.serial] || 'available']++; });
+        unitRows += `<tr><td style="font-weight:700">${escapeHtml(unitName)}</td><td>${unitItems.length}</td><td>${uc.available}</td><td>${uc.loaned}</td><td>${uc.damaged}</td><td>${uc.repair}</td></tr>`;
+    }
+
+    const w = window.open('', '_blank');
+    if (!w) { showToast('חוסם חלונות קופצים מנע פתיחת הדוח'); return; }
+    w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>דוח מצב ציוד</title>
+    <style>*{box-sizing:border-box}body{font-family:'David Libre',David,serif;padding:24px;max-width:700px;margin:0 auto;direction:rtl;color:#111}
+    h1{text-align:center;font-size:1.4rem;margin-bottom:4px}h2{text-align:center;font-size:0.95rem;font-weight:400;color:#444;margin-bottom:20px}
+    .summary{display:flex;justify-content:space-around;margin-bottom:24px;padding:16px;background:#f5f5f5;border-radius:8px}
+    .summary .item{text-align:center}.summary .num{font-size:1.5rem;font-weight:800}.summary .lbl{font-size:0.8rem;color:#666}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem}
+    th,td{border:1px solid #333;padding:8px 10px;text-align:center}th{background:#f5f5f5;font-weight:700}
+    td:first-child{text-align:right}
+    .footer{text-align:center;margin-top:30px;font-size:0.75rem;color:#999;border-top:1px solid #ddd;padding-top:10px}
+    .print-btn{display:block;margin:20px auto;padding:12px 24px;background:#0f4c75;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+    @media print{.print-btn{display:none!important}}</style></head><body>
+    <h1>דוח מצב ציוד — גדוד 7155</h1>
+    <h2>${now.toLocaleDateString('he-IL')} | סה"כ ${EQUIPMENT.length} פריטים</h2>
+    <div class="summary">
+        <div class="item"><div class="num" style="color:#27ae60">${counts.available}</div><div class="lbl">זמין</div></div>
+        <div class="item"><div class="num" style="color:#e67e22">${counts.loaned}</div><div class="lbl">מושאל</div></div>
+        <div class="item"><div class="num" style="color:#e74c3c">${counts.damaged}</div><div class="lbl">תקול</div></div>
+        <div class="item"><div class="num" style="color:#f1c40f">${counts.repair}</div><div class="lbl">בתיקון</div></div>
+    </div>
+    <table><thead><tr><th>יחידה</th><th>סה"כ</th><th>זמין</th><th>מושאל</th><th>תקול</th><th>בתיקון</th></tr></thead><tbody>${unitRows}</tbody></table>
+    <button class="print-btn" onclick="window.print()">הדפס דוח</button>
+    <div class="footer">הופק ע"י מערכת קשריו | ${now.toLocaleDateString('he-IL')} ${now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</div>
+    </body></html>`);
+    w.document.close();
+}
+
+function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `kashrio_export_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('נתונים יוצאו בהצלחה');
 }
 
 // ===== LOAD DATA =====
