@@ -1305,12 +1305,13 @@ function showItemDetail(serial) {
         <p>${escapeHtml(item.role)} — ${escapeHtml(getUnitDisplay(item.company))}</p>
     `;
 
+    const currentLocation = st === 'loaned' ? 'מושאל בשטח' : st === 'repair' ? 'בתיקון' : (item.location ? `${item.location} / ${item.crate || '—'}` : 'במחסן');
     document.getElementById('detail-fields').innerHTML = `
         <div class="detail-field"><span class="label">מספר סידורי</span><span class="value" style="font-family:monospace">${escapeHtml(item.serial) || '—'}</span></div>
         <div class="detail-field"><span class="label">יחידה</span><span class="value">${escapeHtml(item.company)}</span></div>
         <div class="detail-field"><span class="label">תפקיד</span><span class="value">${escapeHtml(item.role)}</span></div>
-        <div class="detail-field"><span class="label">מיקום</span><span class="value">${escapeHtml(item.location) || '—'}</span></div>
-        <div class="detail-field"><span class="label">ארגז</span><span class="value">${escapeHtml(item.crate) || '—'}</span></div>
+        <div class="detail-field"><span class="label">מיקום מקורי (מחסן)</span><span class="value">${escapeHtml(item.location) || '—'} / ${escapeHtml(item.crate) || '—'}</span></div>
+        <div class="detail-field"><span class="label">מיקום נוכחי</span><span class="value" style="font-weight:600;color:${STATUS_COLORS[st]}">${currentLocation}</span></div>
         <div class="detail-field">
             <span class="label">סטטוס</span>
             <select onchange="updateItemStatus('${escapeAttr(item.serial)}', this.value)" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;min-height:36px">
@@ -1343,11 +1344,12 @@ function closeItemDetail(event) {
 // ===== QR CODE GENERATION (Simple SVG) =====
 function generateQRSvg(text) {
     const id = 'qr-' + Math.random().toString(36).substr(2, 9);
+    const appUrl = location.origin + '/#qr?s=' + encodeURIComponent(text);
     setTimeout(() => {
         const el = document.getElementById(id);
         if (el && typeof QRCode !== 'undefined') {
             new QRCode(el, {
-                text: text,
+                text: appUrl,
                 width: 160,
                 height: 160,
                 colorDark: '#0f4c75',
@@ -1881,10 +1883,15 @@ function hideLoading() {
 // ===== INIT =====
 loadEquipment().then(() => {
     hideLoading();
-    const page = location.hash.replace('#', '') || 'home';
+    const hash = location.hash.replace('#', '') || 'home';
+    const [page, params] = hash.split('?');
     const validPages = ['home','status','sign','qr','items','receipts','settings'];
     if (validPages.includes(page) && page !== 'home') {
         navigate(page, false);
+    }
+    if (page === 'qr' && params) {
+        const serial = new URLSearchParams(params).get('s');
+        if (serial) setTimeout(() => onQrScanned(serial), 200);
     }
 }).catch(() => { hideLoading(); });
 // Fallback: hide loading after 5s even if something fails
