@@ -1788,7 +1788,7 @@ function exportData() {
 async function loadEquipment() {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('equipment').select('*');
+            const { data, error } = await supabaseClient.from('equipment').select('*').range(0, 1999);
             if (!error && data && data.length) {
                 EQUIPMENT = data;
                 dataFromDb = true;
