@@ -1319,7 +1319,7 @@ function showAutocomplete(input) {
     if (matches.length === 0) { list.classList.remove('show'); return; }
 
     list.innerHTML = matches.map(e => `
-        <div class="autocomplete-item" onmousedown="selectAutocomplete(this, '${e.product}', '${e.serial}')">${e.product} — ${e.role} (${e.serial || 'ללא צ\\''})</div>
+        <div class="autocomplete-item" onmousedown="selectAutocomplete(this, '${e.product}', '${e.serial}')">${e.product} — ${e.role} (${e.serial || "ללא צ'"})</div>
     `).join('');
     list.classList.add('show');
 }
