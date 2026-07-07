@@ -149,7 +149,7 @@
         }
         .stat { text-align: center; }
         .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .stat .lbl { font-size: 0.7rem; color: var(--text2); margin-top: 2px; }
+        .stat .lbl { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
 
         /* Dashboard grid */
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -167,7 +167,7 @@
             align-items: center;
             justify-content: center;
         }
-        .dash-box:active { transform: scale(0.96); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        .dash-box:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.1); background: #f8fafc; }
         .dash-box .icon { font-size: 2rem; margin-bottom: 8px; }
         .dash-box .title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
         .dash-box .subtitle { font-size: 0.7rem; color: var(--text2); margin-top: 4px; line-height: 1.3; }
@@ -177,6 +177,7 @@
             box-shadow: 0 4px 16px rgba(15,76,117,0.3);
         }
         .dash-box.highlight .title { color: white; }
+        .dash-box.highlight:active { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); }
         .dash-box.highlight .subtitle { color: rgba(255,255,255,0.75); }
 
         /* Back button */
@@ -196,7 +197,7 @@
             box-shadow: var(--shadow);
             min-height: 44px;
         }
-        .back-btn:active { background: var(--bg); }
+        .back-btn:active { background: #e8edf2; transform: scale(0.97); }
 
         /* Section title */
         .section-title { font-size: 0.82rem; font-weight: 700; color: var(--text2); margin-bottom: 10px; padding: 0 4px; }
@@ -250,7 +251,7 @@
             cursor: pointer;
             min-height: 56px;
         }
-        .item-row:active { background: #f8f9fa; }
+        .item-row:active { background: #f0f4f8; transform: scale(0.99); }
         .item-icon {
             width: 40px;
             height: 40px;
@@ -266,7 +267,7 @@
         .item-title { font-weight: 600; font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-sub { font-size: 0.73rem; color: var(--text2); margin-top: 2px; }
         .item-serial { font-size: 0.76rem; font-weight: 700; color: var(--primary); font-family: 'SF Mono', 'Menlo', monospace; }
-        .item-check { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+        .item-check { width: 24px; height: 24px; accent-color: var(--primary); cursor: pointer; min-width: 24px; }
 
         /* Status badge — high contrast with border */
         .status-badge {
@@ -352,7 +353,7 @@
             border-radius: 50%;
         }
 
-        /* Buttons */
+        /* Buttons — active states for visual feedback */
         .btn {
             padding: 14px 20px;
             border: none;
@@ -363,49 +364,59 @@
             width: 100%;
             text-align: center;
             min-height: 48px;
-            transition: transform 0.1s;
+            transition: transform 0.1s, opacity 0.1s, background 0.1s;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        .btn:active { transform: scale(0.98); }
+        .btn:active { transform: scale(0.97); opacity: 0.85; }
         .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:active { background: var(--primary-dark); }
         .btn-success { background: var(--green); color: white; }
+        .btn-success:active { background: #1e8e4e; }
         .btn-danger { background: var(--red); color: white; }
+        .btn-danger:active { background: #c0392b; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
-        .btn-sm { padding: 10px 14px; font-size: 0.82rem; width: auto; min-height: 40px; }
+        .btn-outline:active { background: #f0f2f5; border-color: var(--text3); }
+        .btn-sm { padding: 10px 14px; font-size: 0.82rem; width: auto; min-height: var(--min-touch); }
         .btn-row { display: flex; gap: 10px; margin-top: 16px; }
         .btn-row .btn { flex: 1; }
 
-        /* Form 1008 */
+        /* Form 1008 — mobile-optimized single column */
         .form-card {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 20px;
+            padding: 18px 16px;
             margin-bottom: 16px;
             box-shadow: var(--shadow);
         }
         .form-card h2 { text-align: center; font-size: 1rem; margin-bottom: 4px; }
         .form-card h3 { text-align: center; font-size: 0.82rem; font-weight: 400; color: var(--text2); margin-bottom: 16px; }
-        .form-field { margin-bottom: 12px; }
-        .form-field label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+        .form-field { margin-bottom: 14px; }
+        .form-field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
         .form-field input, .form-field select, .form-field textarea {
             width: 100%;
             padding: 12px 14px;
             border: 1.5px solid var(--border);
             border-radius: 10px;
-            font-size: 0.88rem;
+            font-size: 1rem;
             direction: rtl;
-            min-height: 44px;
+            min-height: var(--min-touch);
             font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
         }
         .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(50,130,184,0.1); }
-        .form-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        /* Single column on narrow screens, 2-col on wider */
+        .form-meta { display: grid; grid-template-columns: 1fr; gap: 0; margin-bottom: 12px; }
+        @media (min-width: 400px) { .form-meta { grid-template-columns: 1fr 1fr; gap: 10px; } }
 
         /* Form item rows */
         .form-items { margin: 12px 0; }
         .form-item-row {
             display: grid;
-            grid-template-columns: 28px 1fr 50px 90px;
+            grid-template-columns: 24px 1fr 50px 80px;
             gap: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             align-items: center;
         }
         .form-item-row span { font-size: 0.75rem; color: var(--text3); text-align: center; }
@@ -413,11 +424,11 @@
             padding: 10px 8px;
             border: 1.5px solid var(--border);
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             direction: rtl;
-            min-height: 40px;
+            min-height: var(--min-touch);
         }
-        .form-item-row input:focus { outline: none; border-color: var(--primary-light); }
+        .form-item-row input:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 2px rgba(50,130,184,0.1); }
 
         /* Autocomplete */
         .autocomplete-wrap { position: relative; }
@@ -437,10 +448,13 @@
         }
         .autocomplete-list.show { display: block; }
         .autocomplete-item {
-            padding: 10px 12px;
-            font-size: 0.82rem;
+            padding: 12px 14px;
+            font-size: 0.85rem;
             cursor: pointer;
             border-bottom: 1px solid var(--border);
+            min-height: var(--min-touch);
+            display: flex;
+            align-items: center;
         }
         .autocomplete-item:last-child { border-bottom: none; }
         .autocomplete-item:active { background: var(--accent); }
@@ -457,35 +471,52 @@
             justify-content: space-between;
         }
         .batch-bar .count { font-weight: 700; font-size: 0.9rem; }
-        .batch-bar .btn { width: auto; padding: 8px 14px; font-size: 0.8rem; background: white; color: var(--primary); min-height: 36px; }
+        .batch-bar .btn { width: auto; padding: 10px 16px; font-size: 0.82rem; background: white; color: var(--primary); min-height: var(--min-touch); }
 
-        /* Signature */
+        /* Signature — larger touch area and canvas */
         .sig-section { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
-        .sig-box { margin-bottom: 16px; }
+        .sig-box { margin-bottom: 18px; }
         .sig-box label {
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--text2);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .sig-box .sig-clear { font-size: 0.72rem; color: var(--red); cursor: pointer; background: none; border: none; padding: 4px 8px; }
+        .sig-box .sig-clear {
+            font-size: 0.76rem;
+            color: var(--red);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            min-height: var(--min-touch);
+            min-width: var(--min-touch);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        .sig-box .sig-clear:active { background: #fee2e2; }
         .sig-canvas-wrap {
             border: 2px dashed var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             background: #fafcfe;
             position: relative;
             overflow: hidden;
             touch-action: none;
+            cursor: pointer;
         }
+        .sig-canvas-wrap:active { border-color: var(--primary-light); }
         .sig-canvas-wrap.has-sig { border-color: var(--green); border-style: solid; background: white; }
-        .sig-canvas { display: block; width: 100%; height: 100px; }
-        .sig-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text3); font-size: 0.85rem; pointer-events: none; }
+        .sig-canvas { display: block; width: 100%; height: 120px; }
+        .sig-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text3); font-size: 0.9rem; pointer-events: none; }
         .sig-canvas-wrap.has-sig .sig-hint { display: none; }
-        .sig-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-        .sig-name-row input { padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.82rem; direction: rtl; min-height: 40px; }
+        .sig-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .sig-name-row input { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.88rem; direction: rtl; min-height: var(--min-touch); }
+        .sig-name-row input:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 2px rgba(50,130,184,0.1); }
 
         /* Full screen signature */
         .sig-fullscreen {
@@ -518,7 +549,7 @@
             cursor: pointer;
             min-height: 60px;
         }
-        .receipt-card:active { background: var(--bg); }
+        .receipt-card:active { background: #f0f4f8; transform: scale(0.99); }
         .receipt-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .receipt-card-header .date { font-size: 0.78rem; color: var(--text3); }
         .receipt-card-header .status { font-size: 0.7rem; padding: 3px 8px; border-radius: 10px; font-weight: 600; }
@@ -574,6 +605,7 @@
         .detail-field {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 12px 0;
             border-bottom: 1px solid var(--border);
             font-size: 0.88rem;
@@ -581,6 +613,7 @@
         .detail-field:last-child { border-bottom: none; }
         .detail-field .label { color: var(--text2); }
         .detail-field .value { font-weight: 600; }
+        .detail-field select { min-height: var(--min-touch); padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.88rem; }
         .detail-qr { text-align: center; margin: 16px 0; }
         .detail-qr svg { max-width: 160px; margin: 0 auto; }
 
@@ -594,10 +627,10 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            min-height: 52px;
+            min-height: 56px;
             cursor: pointer;
         }
-        .setting-row:active { background: #f8f9fa; }
+        .setting-row:active { background: #f0f4f8; transform: scale(0.99); }
         .setting-row .label { font-weight: 600; font-size: 0.88rem; }
         .setting-row .desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
 
@@ -616,6 +649,8 @@
             z-index: 10000;
             transition: transform 0.3s ease;
             box-shadow: var(--shadow-lg);
+            max-width: calc(100vw - 32px);
+            text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -627,9 +662,24 @@
         }
         .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.6; }
         .empty-state p { font-size: 0.88rem; }
+
+        /* Print styles for receipt */
+        @media print {
+            body { background: white; }
+            .header, .back-btn, .offline-bar, .toast, .loading-overlay { display: none !important; }
+            .container { padding: 0; max-width: 100%; }
+            .form-card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            .dash-grid, .stats-bar, .home-welcome { display: none !important; }
+        }
     </style>
 </head>
 <body>
+
+<!-- Loading spinner shown while Supabase data loads -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">טוען נתונים...</div>
+</div>
 
 <div class="offline-bar">אין חיבור לאינטרנט - עובד במצב לא מקוון</div>
 
@@ -725,7 +775,7 @@
                 <button class="btn btn-outline" id="qr-stop-btn" onclick="stopQr()" style="display:none">עצור</button>
             </div>
             <div style="margin-top:16px;display:flex;gap:8px">
-                <input type="text" id="qr-manual-input" placeholder="הקלד מספר סידורי..." style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem">
+                <input type="text" id="qr-manual-input" inputmode="numeric" autocomplete="off" placeholder="הקלד מספר סידורי..." style="flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:1rem;min-height:44px">
                 <button class="btn btn-outline" onclick="manualQrSearch()">חפש</button>
             </div>
         </div>
@@ -771,8 +821,8 @@
                         <div class="sig-hint">לחץ לחתימה</div>
                     </div>
                     <div class="sig-name-row">
-                        <input id="sig-issuer-name" placeholder="שם מלא">
-                        <input id="sig-issuer-rank" placeholder="דרגה / מ.א.">
+                        <input id="sig-issuer-name" autocomplete="name" placeholder="שם מלא">
+                        <input id="sig-issuer-rank" autocomplete="off" placeholder="דרגה / מ.א.">
                     </div>
                 </div>
                 <div class="sig-box">
@@ -782,8 +832,8 @@
                         <div class="sig-hint">לחץ לחתימה</div>
                     </div>
                     <div class="sig-name-row">
-                        <input id="sig-receiver-name" placeholder="שם מלא">
-                        <input id="sig-receiver-rank" placeholder="דרגה / מ.א.">
+                        <input id="sig-receiver-name" autocomplete="name" placeholder="שם מלא">
+                        <input id="sig-receiver-rank" autocomplete="off" placeholder="דרגה / מ.א.">
                     </div>
                 </div>
             </div>
@@ -811,10 +861,10 @@
         <button class="back-btn" onclick="navigate('home')">&#8592; חזרה</button>
         <div class="section-title">פרטי המשתמש (מנפק)</div>
         <div class="form-card" style="margin-bottom:16px">
-            <div class="form-field"><label>שם מלא</label><input id="set-name" placeholder="שם פרטי ומשפחה" oninput="saveUserInfo()"></div>
-            <div class="form-field"><label>דרגה / מ.א.</label><input id="set-rank" placeholder="סג\"מ / 1234567" oninput="saveUserInfo()"></div>
-            <div class="form-field"><label>תפקיד</label><input id="set-role" placeholder="קצין קשר" oninput="saveUserInfo()"></div>
-            <div class="form-field"><label>יחידה</label><input id="set-unit" placeholder="גדוד 7155" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>שם מלא</label><input id="set-name" autocomplete="name" placeholder="שם פרטי ומשפחה" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>דרגה / מ.א.</label><input id="set-rank" autocomplete="off" placeholder="סג\"מ / 1234567" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>תפקיד</label><input id="set-role" autocomplete="organization-title" placeholder="קצין קשר" oninput="saveUserInfo()"></div>
+            <div class="form-field"><label>יחידה</label><input id="set-unit" autocomplete="organization" placeholder="גדוד 7155" oninput="saveUserInfo()"></div>
         </div>
         <div class="section-title">מידע כללי</div>
         <div class="setting-row">
@@ -1345,7 +1395,7 @@ function generateQRSvg(text) {
         <rect width="${size}" height="${size}" fill="white"/>
         ${rects}
     </svg>
-    <p style="font-size:0.75rem;color:var(--text2);margin-top:6px">צ' ${text}</p>`;
+    <p style="font-size:0.75rem;color:var(--text2);margin-top:6px">צ' ${escapeHtml(text)}</p>`;
 }
 
 // ===== QR SCANNER =====
@@ -1541,6 +1591,11 @@ function openFullSig(target) {
     fsCtx.lineCap = 'round';
     fsCtx.lineJoin = 'round';
 
+    // Remove old listeners before adding to prevent leaks on repeated opens
+    canvas.removeEventListener('pointerdown', fsStart);
+    canvas.removeEventListener('pointermove', fsMove);
+    canvas.removeEventListener('pointerup', fsEnd);
+    canvas.removeEventListener('pointerleave', fsEnd);
     canvas.addEventListener('pointerdown', fsStart);
     canvas.addEventListener('pointermove', fsMove);
     canvas.addEventListener('pointerup', fsEnd);
@@ -1682,13 +1737,13 @@ async function renderReceipts() {
         return;
     }
     list.innerHTML = receipts.map(r => `
-        <div class="receipt-card" onclick="viewReceipt('${r.id}')">
+        <div class="receipt-card" onclick="viewReceipt('${escapeAttr(r.id)}')">
             <div class="receipt-card-header">
-                <span class="date">${r.date || ''}</span>
+                <span class="date">${escapeHtml(r.date || '')}</span>
                 <span class="status ${(r.issuer?.sig || r.receiver?.sig) ? 'status-signed' : 'status-unsigned'}">${(r.issuer?.sig || r.receiver?.sig) ? 'חתום' : 'ללא חתימה'}</span>
             </div>
-            <div class="recipient">${r.to_unit || r.to || ''}</div>
-            <div class="items-preview">${(r.items || []).map(i => i.name).join(', ')}</div>
+            <div class="recipient">${escapeHtml(r.to_unit || r.to || '')}</div>
+            <div class="items-preview">${(r.items || []).map(i => escapeHtml(i.name || '')).join(', ')}</div>
         </div>
     `).join('');
 }
@@ -1696,23 +1751,58 @@ async function renderReceipts() {
 function viewReceipt(id) {
     const r = receipts.find(x => x.id == id || x.id === id);
     if (!r) return;
-    const fromUnit = r.from_unit || r.from || '';
-    const toUnit = r.to_unit || r.to || '';
+    const fromUnit = escapeHtml(r.from_unit || r.from || '');
+    const toUnit = escapeHtml(r.to_unit || r.to || '');
     const w = window.open('', '_blank');
-    const sigImg = (sig) => sig ? `<img src="${sig}" style="max-width:200px;max-height:60px">` : '<div style="height:50px;border-bottom:1px solid #000;width:150px"></div>';
-    w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>טופס 1008</title><style>body{font-family:David,serif;padding:20px;direction:rtl;max-width:600px;margin:0 auto}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #000;padding:6px 8px;text-align:right}th{background:#f0f0f0}.sig-section{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px;border-top:1px solid #000;padding-top:16px}.sig-box{border:1px solid #000;padding:12px}h1{text-align:center;font-size:1.2rem}h2{text-align:center;font-size:0.95rem;font-weight:normal}.meta{display:flex;justify-content:space-between;margin:12px 0}@media print{body{padding:10px}}</style></head><body>
-    <h1>טופס החתמה על ציוד קשר</h1><h2>גדוד 7155 — במקום טופס 1008</h2>
-    <div class="meta"><span><b>מאת:</b> ${fromUnit}</span><span><b>תאריך:</b> ${r.date}</span></div>
-    <div class="meta"><span><b>ליחידת:</b> ${toUnit}</span></div>
-    <table><thead><tr><th>מס"ד</th><th>שם פריט</th><th>כמות</th><th>צ' / הערות</th></tr></thead><tbody>
-    ${(r.items||[]).map((it,i) => `<tr><td>${i+1}</td><td>${it.name}</td><td>${it.qty}</td><td>${it.serial}</td></tr>`).join('')}
+    if (!w) { showToast('חוסם חלונות קופצים מנע פתיחת הטופס'); return; }
+    const sigImg = (sig) => sig ? `<img src="${sig}" style="max-width:200px;max-height:60px;display:block;margin-top:8px">` : '<div style="height:50px;border-bottom:1px solid #333;width:160px;margin-top:8px"></div>';
+    w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>טופס 1008 - ${toUnit}</title>
+    <style>
+        *{box-sizing:border-box}
+        body{font-family:'David Libre',David,'Times New Roman',serif;padding:24px 20px;direction:rtl;max-width:650px;margin:0 auto;color:#111;line-height:1.5}
+        .receipt-header{text-align:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:20px}
+        .receipt-header h1{font-size:1.4rem;margin-bottom:4px;font-weight:700}
+        .receipt-header h2{font-size:0.95rem;font-weight:400;color:#444}
+        .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:20px;font-size:0.95rem}
+        .meta-grid .meta-item{display:flex;gap:6px}
+        .meta-grid .meta-label{font-weight:700;white-space:nowrap}
+        table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem}
+        th,td{border:1px solid #333;padding:8px 10px;text-align:right}
+        th{background:#f5f5f5;font-weight:700;font-size:0.82rem}
+        td:first-child,th:first-child{text-align:center;width:40px}
+        .sig-section{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px;padding-top:20px;border-top:2px solid #111}
+        .sig-box{padding:12px 16px}
+        .sig-box h3{text-align:center;font-size:0.95rem;margin-bottom:12px;font-weight:700}
+        .sig-box p{font-size:0.88rem;margin-bottom:4px}
+        .footer{text-align:center;margin-top:40px;font-size:0.75rem;color:#999;border-top:1px solid #ddd;padding-top:12px}
+        .print-btn{display:block;margin:20px auto;padding:12px 24px;background:#0f4c75;color:white;border:none;border-radius:8px;font-size:0.9rem;cursor:pointer;font-weight:600}
+        @media print{
+            body{padding:12px;font-size:11pt}
+            .print-btn{display:none!important}
+            .receipt-header{border-bottom-width:1px}
+            .sig-section{border-top-width:1px}
+        }
+    </style></head><body>
+    <div class="receipt-header">
+        <h1>טופס החתמה על ציוד קשר</h1>
+        <h2>צה"ל — גדוד 7155 | במקום טופס 1008</h2>
+    </div>
+    <div class="meta-grid">
+        <div class="meta-item"><span class="meta-label">מאת:</span><span>${fromUnit}</span></div>
+        <div class="meta-item"><span class="meta-label">תאריך:</span><span>${escapeHtml(r.date||'')}</span></div>
+        <div class="meta-item"><span class="meta-label">ליחידת:</span><span>${toUnit}</span></div>
+        <div class="meta-item"><span class="meta-label">מס' טופס:</span><span>${escapeHtml(r.id||'').replace('r_','')}</span></div>
+    </div>
+    <table><thead><tr><th>מס"ד</th><th>שם פריט</th><th style="width:55px">כמות</th><th>צ' / הערות</th></tr></thead><tbody>
+    ${(r.items||[]).map((it,i) => `<tr><td>${i+1}</td><td>${escapeHtml(it.name||'')}</td><td style="text-align:center">${escapeHtml(String(it.qty||''))}</td><td style="font-family:monospace;font-size:0.85rem">${escapeHtml(it.serial||'')}</td></tr>`).join('')}
     </tbody></table>
     <div class="sig-section">
-        <div class="sig-box"><h3 style="text-align:center">מנפק/ת</h3><p>שם: ${r.issuer?.name||''}</p><p>דרגה: ${r.issuer?.rank||''}</p><p>חתימה:</p>${sigImg(r.issuer?.sig)}</div>
-        <div class="sig-box"><h3 style="text-align:center">מקבל/ת</h3><p>שם: ${r.receiver?.name||''}</p><p>דרגה: ${r.receiver?.rank||''}</p><p>חתימה:</p>${sigImg(r.receiver?.sig)}</div>
+        <div class="sig-box"><h3>מנפק/ת</h3><p><b>שם:</b> ${escapeHtml(r.issuer?.name||'')}</p><p><b>דרגה:</b> ${escapeHtml(r.issuer?.rank||'')}</p><p><b>חתימה:</b></p>${sigImg(r.issuer?.sig)}</div>
+        <div class="sig-box"><h3>מקבל/ת</h3><p><b>שם:</b> ${escapeHtml(r.receiver?.name||'')}</p><p><b>דרגה:</b> ${escapeHtml(r.receiver?.rank||'')}</p><p><b>חתימה:</b></p>${sigImg(r.receiver?.sig)}</div>
     </div>
-    ${r.notes ? `<p style="margin-top:16px"><b>הערות:</b> ${r.notes}</p>` : ''}
-    <p style="text-align:center;margin-top:30px;font-size:0.8rem;color:#999">הופק דיגיטלית באמצעות קשריו</p>
+    ${r.notes ? `<p style="margin-top:20px;font-size:0.9rem"><b>הערות:</b> ${escapeHtml(r.notes)}</p>` : ''}
+    <button class="print-btn" onclick="window.print()">הדפס טופס</button>
+    <div class="footer">הופק דיגיטלית באמצעות מערכת קשריו | ${new Date().toLocaleDateString('he-IL')}</div>
     </body></html>`);
     w.document.close();
 }
@@ -1817,14 +1907,26 @@ window.addEventListener('beforeunload', (e) => {
 // ===== EQUIPMENT FALLBACK DATA (185 items) =====
 const EQUIPMENT_FALLBACK = [{"company":"א","role":"מ\"פ א'","product":"מכשיר 710","serial":"497527","location":"A2","crate":"ארגז 1"},{"company":"א","role":"מ\"פ א'","product":"אול\"ר","serial":"102302379","location":"A2","crate":"ארגז 1"},{"company":"א","role":"מ\"פ א'","product":"סל\"צ","serial":"563843","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קשר מ\"פ","product":"מכשיר 710","serial":"556829","location":"A2","crate":"ארגז 1"},{"company":"א","role":"סמ\"פ א'","product":"מכשיר 710","serial":"804506","location":"A2","crate":"ארגז 1"},{"company":"א","role":"סמ\"פ א'","product":"אול\"ר","serial":"102302219","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קשר סמ\"פ","product":"מכשיר 710","serial":"494161","location":"A2","crate":"ארגז 1"},{"company":"א","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"582178","location":"A2","crate":"ארגז 1"},{"company":"א","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"492574","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 1","product":"מכשיר 710","serial":"495412","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 1","product":"אול\"ר","serial":"102302072","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 2","product":"מכשיר 710","serial":"493998","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 2","product":"אול\"ר","serial":"102302664","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 3","product":"מכשיר 710","serial":"498032","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 3","product":"אול\"ר","serial":"102307771","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 4","product":"מכשיר 710","serial":"495544","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מ\"מ 4","product":"אול\"ר","serial":"102307786","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 1","product":"מכשיר 710","serial":"490382","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 1","product":"אול\"ר","serial":"102307782","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 2","product":"מכשיר 710","serial":"804492","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 2","product":"אול\"ר","serial":"102302397","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 3","product":"מכשיר 710","serial":"497776","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 3","product":"אול\"ר","serial":"102307778","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 4","product":"מכשיר 710","serial":"492720","location":"A2","crate":"ארגז 2"},{"company":"א","role":"סמל 4","product":"אול\"ר","serial":"102307775","location":"A2","crate":"ארגז 2"},{"company":"א","role":"מכ 1","product":"אול\"ר","serial":"102303874","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 2","product":"אול\"ר","serial":"102307086","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 3","product":"אול\"ר","serial":"102312496","location":"A2","crate":"ארגז 3"},{"company":"א","role":"מכ 4","product":"אול\"ר","serial":"102305058","location":"A2","crate":"ארגז 3"},{"company":"ב","role":"מ\"פ ב'","product":"מכשיר 710","serial":"803167","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"מ\"פ ב'","product":"אול\"ר","serial":"102301373","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"מ\"פ ב'","product":"סל\"צ","serial":"546174","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קשר מ\"פ ב'","product":"מכשיר 710","serial":"808391","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"סמ\"פ ב'","product":"מכשיר 710","serial":"556905","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"סמ\"פ ב'","product":"אול\"ר","serial":"102302322","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קשר סמ\"פ ב'","product":"מכשיר 710","serial":"808586","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"497552","location":"A3","crate":"ארגז 5"},{"company":"ב","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"492651","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 1","product":"מכשיר 710","serial":"808223","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 1","product":"אול\"ר","serial":"102302316","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 2","product":"מכשיר 710","serial":"494073","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 2","product":"אול\"ר","serial":"102307584","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 3","product":"מכשיר 710","serial":"497803","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 3","product":"אול\"ר","serial":"102307777","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 4","product":"מכשיר 710","serial":"802325","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מ\"מ 4","product":"אול\"ר","serial":"102307779","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 1","product":"מכשיר 710","serial":"492247","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 1","product":"אול\"ר","serial":"102307780","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 2","product":"מכשיר 710","serial":"497513","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 2","product":"אול\"ר","serial":"102307784","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 3","product":"מכשיר 710","serial":"491307","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 3","product":"אול\"ר","serial":"102307776","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 4","product":"מכשיר 710","serial":"495496","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"סמל 4","product":"אול\"ר","serial":"102307785","location":"A3","crate":"ארגז 6"},{"company":"ב","role":"מכ 1","product":"אול\"ר","serial":"102307078","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 2","product":"אול\"ר","serial":"102307770","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 3","product":"אול\"ר","serial":"102305070","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"מכ 4","product":"אול\"ר","serial":"102312261","location":"A3","crate":"ארגז 7"},{"company":"ב","role":"תגבור 1","product":"אול\"ר","serial":"102305962","location":"","crate":""},{"company":"ב","role":"תגבור 2","product":"אול\"ר","serial":"102301029","location":"","crate":""},{"company":"ג","role":"מ\"פ ג'","product":"מכשיר 710","serial":"803916","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"מ\"פ ג'","product":"אול\"ר","serial":"102302650","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"מ\"פ ג'","product":"סל\"צ","serial":"548169","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קשר מ\"פ ג'","product":"מכשיר 710","serial":"490983","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"סמ\"פ ג'","product":"מכשיר 710","serial":"492847","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"סמ\"פ ג'","product":"אול\"ר","serial":"102305077","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קשר סמ\"פ ג'","product":"מכשיר 710","serial":"801625","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"חופ\"ל פלוגתי","product":"מכשיר 710","serial":"497714","location":"A4","crate":"ארגז 9"},{"company":"ג","role":"קמב\"ץ פלוגתי","product":"מכשיר 710","serial":"804725","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 1","product":"מכשיר 710","serial":"491889","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 1","product":"אול\"ר","serial":"102302079","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 2","product":"מכשיר 710","serial":"491221","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 2","product":"אול\"ר","serial":"102302667","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 3","product":"מכשיר 710","serial":"489584","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 3","product":"אול\"ר","serial":"102302114","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 4","product":"מכשיר 710","serial":"542122","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מ\"מ 4","product":"אול\"ר","serial":"102302656","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 1","product":"מכשיר 710","serial":"824011","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 1","product":"אול\"ר","serial":"102307783","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 2","product":"מכשיר 710","serial":"803307","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 2","product":"אול\"ר","serial":"102307774","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 3","product":"מכשיר 710","serial":"803336","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 3","product":"אול\"ר","serial":"102307781","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 4","product":"מכשיר 710","serial":"801052","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"סמל 4","product":"אול\"ר","serial":"102307772","location":"A4","crate":"ארגז 10"},{"company":"ג","role":"מכ 1","product":"אול\"ר","serial":"102307088","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 2","product":"אול\"ר","serial":"102307084","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 3","product":"אול\"ר","serial":"102307082","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"מכ 4","product":"אול\"ר","serial":"102307080","location":"A4","crate":"ארגז 11"},{"company":"ג","role":"תגבור 1","product":"אול\"ר","serial":"102313364","location":"","crate":""},{"company":"ג","role":"תגבור 2","product":"אול\"ר","serial":"102305131","location":"","crate":""},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"מכשיר 710","serial":"489828","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"אול\"ר","serial":"102304131","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"פ מסייעת","product":"סל\"צ","serial":"551645","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר מ\"פ","product":"מכשיר 710","serial":"557186","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר מ\"פ","product":"אול\"ר","serial":"102307087","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"סמ\"פ מסייעת","product":"מכשיר 710","serial":"607222","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"סמ\"פ מסייעת","product":"אול\"ר","serial":"102302214","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר סמ\"פ","product":"מכשיר 710","serial":"495614","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"קשר סמ\"פ","product":"אול\"ר","serial":"102307076","location":"B4","crate":"ארגז 13"},{"company":"מסייעת","role":"מ\"מ פתן (ניוד)","product":"מכשיר 710","serial":"803054","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ פתן (ניוד)","product":"אול\"ר","serial":"102301552","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ סבלי חי\"ר (פינוי)","product":"מכשיר 710","serial":"492818","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ סבלי חי\"ר (פינוי)","product":"אול\"ר","serial":"102305403","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סמל סבלי חי\"ר ","product":"מכשיר 710","serial":"496159","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סמל סבלי חי\"ר ","product":"אול\"ר","serial":"102307089","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סבלי חי\"ר 3","product":"מכשיר 710","serial":"490261","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"סבלי חי\"ר 4","product":"מכשיר 710","serial":"808638","location":"B4","crate":"ארגז 14"},{"company":"מסייעת","role":"מ\"מ אוהד 8","product":"מכשיר 710","serial":"824605","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 8","product":"אול\"ר","serial":"102315863","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 8","product":"מכשיר 710","serial":"802111","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 8","product":"אול\"ר","serial":"102301679","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 5","product":"מכשיר 710","serial":"803971","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ אוהד 5","product":"אול\"ר","serial":"102302365","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 5","product":"מכשיר 710","serial":"824018","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"סמל אוהד 5","product":"אול\"ר","serial":"102302672","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 5","product":"מכשיר 710","serial":"492427","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 5","product":"אול\"ר","serial":"102305405","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 8","product":"מכשיר 710","serial":"802972","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"כ אוהד 8","product":"אול\"ר","serial":"102302283","location":"B4","crate":"ארגז 15"},{"company":"מסייעת","role":"מ\"מ צלפים","product":"מכשיר 710","serial":"808303","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צלפים","product":"אול\"ר","serial":"102304758","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צלפים","product":"מכשיר 710","serial":"876913","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צלפים","product":"אול\"ר","serial":"102302679","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צלפים","product":"מכשיר 710","serial":"803368","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צלפים","product":"אול\"ר","serial":"102307075","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ מרגמות","product":"מכשיר 710","serial":"498041","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ מרגמות","product":"אול\"ר","serial":"102300793","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמ\"ל מרגמות","product":"מכשיר 710","serial":"494657","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמ\"ל מרגמות","product":"אול\"ר","serial":"102302367","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צמיד קל","product":"מכשיר 710","serial":"802355","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"מ צמיד קל","product":"אול\"ר","serial":"102305076","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צמיד קל","product":"מכשיר 710","serial":"492877","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"סמל צמיד קל","product":"אול\"ר","serial":"102307081","location":"B4","crate":"ארגז 16"},{"company":"מסייעת","role":"מ\"כ צמיד קל","product":"אול\"ר","serial":"102307079","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ מרגמות","product":"אול\"ר","serial":"102307077","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ","product":"אול\"ר","serial":"102307073","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ פתן 3","product":"אול\"ר","serial":"102307072","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"מ\"כ פתן 4","product":"אול\"ר","serial":"102307083","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"רס\"פ ","product":"אול\"ר","serial":"102307074","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"סמל פתן (ניוד)","product":"אול\"ר","serial":"102304695","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"תגבור","product":"אול\"ר","serial":"102307324","location":"B4","crate":"ארגז 18"},{"company":"מסייעת","role":"חוליית ממסר רגלי","product":"מכשיר 91","serial":"","location":"B4","crate":"ארגז 17"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"מכשיר 710","serial":"824409","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"אול\"ר פלוס","serial":"111220355","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"אול\"ר","serial":"102302668","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מג\"ד","product":"סל\"צ","serial":"549632","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"מפקד חפ\"ק","product":"מכשיר 710","serial":"491531","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"מכשיר 710","serial":"804469","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"אול\"ר","serial":"102302301","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"ק. אג\"ם","product":"סל\"צ","serial":"548483","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמב\"ץ","product":"מכשיר 710","serial":"494053","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמב\"ץ","product":"אול\"ר","serial":"102302239","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמ\"ן","product":"מכשיר 710","serial":"801918","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קמ\"ן","product":"אול\"ר","serial":"102302056","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר קמ\"ן","product":"מכשיר 710","serial":"493054","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קש\"א","product":"מכשיר 711","serial":"","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קש\"א","product":"אול\"ר","serial":"102302137","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר קש\"א","product":"מכשיר 710","serial":"582264","location":"B3","crate":"ארגז 20"},{"company":"חפ\"ק מג\"ד","role":"קשר מג\"ד","product":"מכשיר 710","serial":"491019","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר\"ג","product":"מכשיר 710","serial":"490744","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר\"ג","product":"אול\"ר","serial":"102302190","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"קשר ק. אג\"ם","product":"מכשיר 710","serial":"490804","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"יונק דבש רחפנים","product":"מכשיר 710","serial":"583040","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק מג\"ד","role":"יונק דבש רחפנים","product":"אול\"ר","serial":"102302224","location":"B3","crate":"ארגז 21"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"מכשיר 710","serial":"490503","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"אול\"ר פלוס","serial":"111220353","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"אול\"ר","serial":"102315666","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"סמג\"ד","product":"סל\"צ","serial":"547464","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"קשר סמג\"ד 1","product":"מכשיר 710","serial":"493931","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"קשר סמג\"ד 2","product":"מכשיר 710","serial":"493873","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"מכשיר 710","serial":"803805","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"אול\"ר","serial":"102305484","location":"B3","crate":"ארגז 22"},{"company":"חפ\"ק סמג\"ד","role":"מפקד פלס\"מ","product":"סל\"צ","serial":"553267","location":"B3","crate":"ארגז 22"},{"company":"חולייה רפואית","role":"רופא","product":"מכשיר 710","serial":"489877","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"רופא","product":"אול\"ר","serial":"102301759","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"רופא","product":"סל\"צ","serial":"551589","location":"B3","crate":"ארגז 23"},{"company":"חולייה רפואית","role":"קשר רופא","product":"מכשיר 710","serial":"582550","location":"B3","crate":"ארגז 23"},{"company":"מפג\"ד","role":"סמ\"פ פלס\"ם","product":"אול\"ר","serial":"102305059","location":"B3","crate":"ארגז 25"},{"company":"מפג\"ד","role":"חפ\"ק לבנון","product":"מכשיר 91","serial":"","location":"B3","crate":"ארגז 24"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"497894","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"סל\"צ","serial":"549095","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"496091","location":"כ\"ס אוגדה","crate":"ארגזים"},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"808526","location":"","crate":""},{"company":"מפג\"ד","role":"מחסן (בטן)","product":"מכשיר 710","serial":"803241","location":"כ\"ס אוגדה","crate":"ארגזים"}];
 
+// ===== HIDE LOADING OVERLAY =====
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => { overlay.style.display = 'none'; }, 350);
+    }
+}
+
 // ===== INIT =====
 loadEquipment().then(() => {
+    hideLoading();
     const page = location.hash.replace('#', '') || 'home';
     const validPages = ['home','status','sign','qr','items','receipts','settings'];
     if (validPages.includes(page) && page !== 'home') {
         navigate(page, false);
     }
-});
+}).catch(() => { hideLoading(); });
+// Fallback: hide loading after 5s even if something fails
+setTimeout(hideLoading, 5000);
 </script>
 </body>
 </html>
