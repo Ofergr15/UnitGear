@@ -45,6 +45,47 @@
             overflow-x: hidden;
         }
 
+        /* PIN Gate */
+        .pin-gate {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .pin-gate.hidden { display: none; }
+        .pin-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 340px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+        .pin-logo { font-size: 3rem; margin-bottom: 12px; }
+        .pin-card h2 { font-size: 1.1rem; margin-bottom: 4px; color: var(--text); }
+        .pin-card p { font-size: 0.85rem; color: var(--text2); margin-bottom: 24px; }
+        .pin-inputs { display: flex; gap: 12px; justify-content: center; margin-bottom: 8px; }
+        .pin-digit {
+            width: 52px;
+            height: 60px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            caret-color: var(--primary);
+            -webkit-text-security: disc;
+        }
+        .pin-digit:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(50,130,184,0.15); }
+        .pin-digit.error { border-color: var(--red); animation: shake 0.4s ease; }
+        .pin-error { font-size: 0.8rem; color: var(--red); min-height: 20px; margin-top: 8px; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
         /* Loading overlay */
         .loading-overlay {
             position: fixed;
@@ -731,6 +772,23 @@
 </head>
 <body>
 
+<!-- PIN Gate -->
+<div class="pin-gate" id="pin-gate">
+    <div class="pin-card">
+        <div class="pin-logo">🔒</div>
+        <h2>קשריו — גדוד 7155</h2>
+        <p>הזן קוד גישה</p>
+        <div class="pin-inputs" id="pin-inputs">
+            <input type="tel" maxlength="1" class="pin-digit" inputmode="numeric" autocomplete="off">
+            <input type="tel" maxlength="1" class="pin-digit" inputmode="numeric" autocomplete="off">
+            <input type="tel" maxlength="1" class="pin-digit" inputmode="numeric" autocomplete="off">
+            <input type="tel" maxlength="1" class="pin-digit" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="pin-error" id="pin-error"></div>
+        <button class="btn btn-primary" onclick="verifyPin()" style="margin-top:16px">כניסה</button>
+    </div>
+</div>
+
 <!-- Loading spinner shown while Supabase data loads -->
 <div class="loading-overlay" id="loading-overlay">
     <div class="loading-spinner"></div>
@@ -963,6 +1021,9 @@
         <div class="setting-row" onclick="if(confirm('למחוק את כל הטפסים השמורים מהמכשיר?')){localStorage.removeItem('kashrio_receipts');showToast('הטפסים נמחקו')}">
             <div><div class="label" style="color:var(--red)">מחק טפסים שמורים</div><div class="desc">ניקוי היסטוריית החתמות מהמכשיר</div></div>
         </div>
+        <div class="setting-row" onclick="lockApp()">
+            <div><div class="label" style="color:var(--red)">נעל אפליקציה</div><div class="desc">יציאה — יידרש קוד גישה מחדש</div></div>
+        </div>
         <div style="margin-top:16px">
             <button class="back-btn" onclick="navigate('home')">&#8592; חזרה לדף הבית</button>
         </div>
@@ -997,6 +1058,55 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<script>
+// ===== PIN GATE =====
+const APP_PIN = '7155';
+const PIN_STORAGE_KEY = 'kashrio_auth';
+
+function initPinGate() {
+    if (localStorage.getItem(PIN_STORAGE_KEY) === 'true') {
+        document.getElementById('pin-gate').classList.add('hidden');
+        return;
+    }
+    const digits = document.querySelectorAll('.pin-digit');
+    digits.forEach((d, i) => {
+        d.addEventListener('input', () => {
+            d.value = d.value.replace(/[^0-9]/g, '');
+            if (d.value && i < digits.length - 1) digits[i+1].focus();
+            if (i === digits.length - 1 && d.value) verifyPin();
+        });
+        d.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !d.value && i > 0) { digits[i-1].focus(); digits[i-1].value = ''; }
+        });
+        d.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g,'').slice(0,4);
+            paste.split('').forEach((ch, j) => { if (digits[j]) digits[j].value = ch; });
+            if (paste.length === 4) verifyPin();
+        });
+    });
+    setTimeout(() => digits[0].focus(), 300);
+}
+
+function verifyPin() {
+    const digits = document.querySelectorAll('.pin-digit');
+    const entered = Array.from(digits).map(d => d.value).join('');
+    if (entered.length < 4) return;
+    if (entered === APP_PIN) {
+        localStorage.setItem(PIN_STORAGE_KEY, 'true');
+        document.getElementById('pin-gate').classList.add('hidden');
+        document.getElementById('pin-error').textContent = '';
+    } else {
+        document.getElementById('pin-error').textContent = 'קוד שגוי — נסה שוב';
+        digits.forEach(d => { d.classList.add('error'); d.value = ''; });
+        setTimeout(() => digits.forEach(d => d.classList.remove('error')), 500);
+        digits[0].focus();
+    }
+}
+
+initPinGate();
+</script>
 
 <script>
 // ===== SUPABASE =====
@@ -2008,6 +2118,17 @@ function viewReceipt(id) {
 }
 
 // ===== SETTINGS & EXPORT =====
+function lockApp() {
+    if (confirm('לנעול את האפליקציה? יידרש קוד גישה מחדש')) {
+        localStorage.removeItem(PIN_STORAGE_KEY);
+        document.getElementById('pin-gate').classList.remove('hidden');
+        document.querySelectorAll('.pin-digit').forEach(d => d.value = '');
+        document.getElementById('pin-error').textContent = '';
+        setTimeout(() => document.querySelector('.pin-digit').focus(), 300);
+        navigate('home');
+    }
+}
+
 function exportData() {
     const data = { equipment: EQUIPMENT, receipts, statuses: getItemStatuses(), exported: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
